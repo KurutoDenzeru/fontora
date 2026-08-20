@@ -131,3 +131,20 @@
     @apply font-sans;
     }
 }
+
+/* Type marquee: drift the duplicated strip by exactly one copy, then loop. */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee 42s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

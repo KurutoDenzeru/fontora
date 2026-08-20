@@ -1,0 +1,65 @@
+---
+import MainLayout from "@/layouts/main.astro"
+import FamilyTitle from "@/components/font-detail/family-title"
+import DetailTabs from "@/components/font-detail/detail-tabs"
+import PairingRow from "@/components/font-detail/pairing-row"
+import { SelectButton } from "@/components/select-button"
+import { fonts, fontsById } from "@/lib/fonts"
+import { pairings } from "@/data/curation"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import type { FontMeta } from "@/lib/fonts"
+
+interface Props {
+  font: FontMeta
+}
+
+export function getStaticPaths() {
+  return fonts.map((font) => ({
+    params: { id: font.id },
+    props: { font },
+  }))
+}
+
+const { font } = Astro.props
+
+const axisCount = Object.keys(font.axes ?? {}).length
+const description = `${font.family}: ${font.category} font with ${font.weights.length} weights.${font.variable ? ` Variable font with ${axisCount} axes.` : ""}`
+const pairedFonts = (pairings[font.id] ?? [])
+  .map((id) => fontsById.get(id))
+  .filter((f): f is FontMeta => f !== undefined)
+---
+
+<MainLayout title={`${font.family} · Fontora`} description={description}>
+  <article class="py-10 md:py-14">
+    <header class="mb-10">
+      <FamilyTitle font={font} client:load />
+      <div class="mt-6 flex flex-wrap items-center gap-2">
+        <Badge variant="secondary">{font.category}</Badge>
+        <Badge variant="secondary">{font.license}</Badge>
+        {font.variable && <Badge variant="secondary">Variable</Badge>}
+        <Badge variant="secondary">{font.weights.length} weights</Badge>
+        <Badge variant="secondary">{font.subsets.length} subsets</Badge>
+        <div class="ml-auto">
+          <SelectButton fontId={font.id} family={font.family} client:load />
+        </div>
+      </div>
+    </header>
+
+    <DetailTabs font={font} client:load />
+
+    {pairedFonts.length > 0 && (
+      <>
+        <Separator className="my-12" />
+        <section aria-labelledby="pairings-heading">
+          <h2 id="pairings-heading" class="mb-6 text-lg font-medium">Pairings</h2>
+          <div class="flex flex-col gap-6">
+            {pairedFonts.map((paired) => (
+              <PairingRow font={font} pairedFont={paired} client:visible />
+            ))}
+          </div>
+        </section>
+      </>
+    )}
+  </article>
+</MainLayout>

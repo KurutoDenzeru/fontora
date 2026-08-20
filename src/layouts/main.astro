@@ -1,15 +1,63 @@
 ---
 import "@/styles/global.css"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Toaster } from "@/components/ui/sonner"
+import { SelectionBag } from "@/components/selection/selection-bag"
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = "Fontora · A curated font catalog",
+  description = "Browse, test, and pair 1,900+ open-source fonts. Live specimens, variable axis playgrounds, and embed snippets.",
+} = Astro.props
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Astro App</title>
+    <title>{title}</title>
+    <script is:inline>
+      {
+        const stored = localStorage.getItem("fontora:theme")
+        if (stored === "dark" || (!stored && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark")
+        }
+      }
+    </script>
   </head>
-  <body>
-    <slot />
+  <body class="flex min-h-[100dvh] flex-col">
+    <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-sm">
+      <div class="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between px-4 md:px-6">
+        <a href="/" class="text-lg font-semibold tracking-tight">Fontora</a>
+        <nav class="flex items-center gap-6 text-sm text-muted-foreground">
+          <a href="/" class="transition-colors hover:text-foreground">Catalog</a>
+          <a href="/#collections" class="transition-colors hover:text-foreground">Collections</a>
+        </nav>
+        <div class="flex items-center gap-1">
+          <ThemeToggle client:load />
+        </div>
+      </div>
+    </header>
+    <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 md:px-6">
+      <slot />
+    </main>
+    <footer class="border-t py-8">
+      <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 text-sm text-muted-foreground md:px-6">
+        <span>Fontora</span>
+        <span>Fonts served by the Fontsource CDN. Licenses included per family.</span>
+      </div>
+    </footer>
+    <Toaster client:load />
+    <SelectionBag client:load />
   </body>
 </html>

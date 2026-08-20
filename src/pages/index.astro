@@ -1,17 +1,33 @@
 ---
 import Layout from "@/layouts/main.astro"
-import { Button } from "@/components/ui/button"
+import { collections, SHOWCASE_IDS } from "@/data/curation"
+import { CatalogBrowser } from "@/components/catalog/browser"
+import { CollectionRow } from "@/components/catalog/collection-row"
+import { KineticHero } from "@/components/catalog/kinetic-hero"
+import { TypeMarquee } from "@/components/catalog/type-marquee"
 ---
 
-<Layout>
-  <div class="flex min-h-svh p-6">
-    <div class="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-      <div>
-        <h1 class="font-medium">Project ready!</h1>
-        <p>You may now add components and start building.</p>
-        <p>We've already added the button component for you.</p>
-        <Button client:load className="mt-2">Button</Button>
-      </div>
+<Layout title="Fontora · Every font, worth trying">
+  <div class="py-10 md:py-16">
+    <header class="mb-12 md:mb-16">
+      <KineticHero client:load />
+    </header>
+
+    <CatalogBrowser client:load />
+
+    <div class="mt-16 md:mt-20">
+      <TypeMarquee fontIds={SHOWCASE_IDS} client:visible />
+    </div>
+
+    <div class="mt-4">
+      {collections.map((collection) => (
+        <CollectionRow
+          client:visible
+          title={collection.title}
+          tagline={collection.tagline}
+          fontIds={collection.fontIds}
+        />
+      ))}
     </div>
   </div>
 </Layout>
