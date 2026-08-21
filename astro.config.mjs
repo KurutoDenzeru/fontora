@@ -1,55 +1,20 @@
 // @ts-nocheck
-// oxc fix for Vite 7 Rolldown - see https://oxc.rs/docs/guide/usage/vite
-
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import react from "@astrojs/react"
 
-// Vite 7 (Rolldown) deprecates `esbuild` in favor of `oxc` and `optimizeDeps.esbuildOptions` in favor of `optimizeDeps.rolldownOptions`.
-// The internal `vite:react-babel` plugin still emits the old keys, so we translate them here.
-// See https://oxc.rs/docs/guide/usage/vite
-function oxcFixPlugin() {
-  return {
-    name: "fix-esbuild-to-oxc",
-    enforce: "post",
-    // @ts-ignore - Vite config shape varies by version
-    config(config) {
-      // Vite 7 deprecates esbuild in favor of oxc. The react plugin still emits esbuild
-      // config; we drop it and let Vite use its default oxc handling.
-      if ((/** @type {any} */ (config)).esbuild) {
-        delete (/** @type {any} */ (config)).esbuild;
-      }
-      // Vite 7 warns about optimizeDeps.esbuildOptions; just drop it.
-      // The new key rolldownOptions has a different schema (esbuild's jsx: "automatic" is invalid there).
-      const od = /** @type {any} */ (config).optimizeDeps;
-      if (od && od.esbuildOptions) {
-        delete od.esbuildOptions;
-      }
-    },
-  };
-}
-
-function suppressEsbuildWarnPlugin() {
-  return {
-    name: "suppress-esbuild-warn",
-    enforce: "post",
-    configResolved(config) {
-      const logger = /** @type {any} */ (config).logger;
-      if (!logger || !logger.warn) return;
-      const origWarn = logger.warn.bind(logger);
-      logger.warn = (msg, opts) => {
-        if (typeof msg === "string" && msg.includes("esbuild") && msg.includes("oxc")) return;
-        if (typeof msg === "string" && msg.includes("esbuildOptions") && msg.includes("rolldownOptions")) return;
-        origWarn(msg, opts);
-      };
-    },
-  };
-}
-
-// https://astro.build/config
+// Vite now uses Oxc for transforms (see https://oxc.rs) and Rolldown for dep optimization.
+// `esbuild` → `oxc` and `optimizeDeps.esbuildOptions` → `optimizeDeps.rolldownOptions` are
+// deprecated — Vite converts them automatically, but @vitejs/plugin-react 5.2+ already emits
+// `oxc` + `optimizeDeps.rolldownOptions` when running on Vite 8 (rolldown-vite). Pinning
+// vite@8.2.2 at the project root aligns the top-level `vite` with astro's internal
+// vite@8.2.2, making `"rolldownVersion" in vite` true so the plugin returns `oxc` config
+// and the deprecated `esbuild` warnings disappear without suppression hacks.
+// https://vite.dev/guide/migration#javascript-transforms-by-oxc
+// https://vite.dev/guide/migration#dependency-optimizer-now-uses-rolldown
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss(), oxcFixPlugin(), suppressEsbuildWarnPlugin()],
+    plugins: [tailwindcss()],
   },
   integrations: [react()],
 })

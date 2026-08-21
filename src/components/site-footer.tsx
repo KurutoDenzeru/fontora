@@ -1,5 +1,4 @@
 import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa6"
-import { ThemeSelector } from "@/components/theme-selector"
 
 /**
  * Site footer. Socials: swap the hrefs here once the real handles exist.
@@ -36,28 +35,27 @@ export function SiteFooter() {
       <div className="mx-auto w-full max-w-[1400px] px-4 md:px-6">
         <div className="grid gap-10 py-12 md:grid-cols-[1fr_auto_auto] md:gap-16">
           <div className="flex max-w-sm flex-col gap-4">
-            <span className="text-lg font-semibold tracking-tight">Fontora</span>
+            <a href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
+              <img src="/brand.webp" alt="Fontora" width={28} height={28} className="size-7 rounded-md object-contain" loading="lazy" decoding="async" />
+              Fontora
+            </a>
             <p className="text-sm leading-relaxed text-muted-foreground">
               A curated catalog of open-source type. Live specimens, variable playgrounds, and embed
               snippets for every family.
             </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1">
-                {SOCIALS.map(({ label, href, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={label}
-                    className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    <Icon className="size-4" />
-                  </a>
-                ))}
-              </div>
-              <div className="hidden h-4 w-px bg-border sm:block" aria-hidden="true" />
-              <ThemeSelector />
+            <div className="flex items-center gap-1">
+              {SOCIALS.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <Icon className="size-4" />
+                </a>
+              ))}
             </div>
           </div>
 
@@ -76,9 +74,8 @@ export function SiteFooter() {
             </nav>
           ))}
         </div>
-
         <div className="flex flex-col gap-2 border-t py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Fontora</span>
+          <span>© 2026 Fontora. KurutoDenzeru. All rights reserved.</span>
           <span className="max-w-[36ch] sm:max-w-none sm:text-right">
             Fonts served by the Fontsource CDN. Every family ships with its license.
           </span>

@@ -71,7 +71,12 @@ export function SpecimenCard({ font, previewText, previewSize }: SpecimenCardPro
         </div>
       </div>
 
-      <a href={`/fonts/${font.id}`} className="block flex-1" tabIndex={-1} aria-hidden="true">
+      <div
+        className="block flex-1 cursor-pointer"
+        onClick={() => {
+          window.location.href = `/fonts/${font.id}`
+        }}
+      >
         {status === "idle" ? (
           <Skeleton className="h-24 w-full" />
         ) : (
@@ -86,7 +91,7 @@ export function SpecimenCard({ font, previewText, previewSize }: SpecimenCardPro
             {previewText || SPECIMEN_DEFAULT}
           </p>
         )}
-      </a>
+      </div>
     </div>
   )
 }
