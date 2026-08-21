@@ -98,6 +98,7 @@ const output = fonts
     family: f.family,
     category: f.category,
     subsets: f.subsets,
+    defSubset: f.defSubset,
     weights: f.weights,
     styles: f.styles,
     variable: f.variable,

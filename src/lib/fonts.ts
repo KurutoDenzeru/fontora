@@ -12,6 +12,7 @@ export interface FontMeta {
   family: string
   category: string
   subsets: string[]
+  defSubset?: string
   weights: number[]
   styles: string[]
   variable: boolean
@@ -93,7 +94,19 @@ export function fallbackStack(category: string): string {
   }
 }
 
-const CDN = "https://cdn.jsdelivr.net/fontsource/fonts"
+// Primary Fontsource CDN (jsDelivr) and opensource fallbacks
+const PRIMARY_CDN = "https://cdn.jsdelivr.net/fontsource/fonts"
+const FALLBACK_UNPKG = "https://unpkg.com/@fontsource"
+const FALLBACK_UNPKG_VAR = "https://unpkg.com/@fontsource-variable"
+const FALLBACK_NPM = "https://cdn.jsdelivr.net/npm/@fontsource"
+const FALLBACK_NPM_VAR = "https://cdn.jsdelivr.net/npm/@fontsource-variable"
+
+function effectiveSubset(font: Pick<FontMeta, "subsets" | "defSubset">, requested: string): string {
+  if (font.subsets.includes(requested)) return requested
+  if (font.defSubset && font.subsets.includes(font.defSubset)) return font.defSubset
+  if (font.subsets.includes("latin")) return "latin"
+  return font.subsets[0] ?? requested
+}
 
 /** Static weight file: fonts/{id}@latest/{subset}-{weight}-{style}.woff2 */
 export function staticFontUrl(
@@ -102,7 +115,30 @@ export function staticFontUrl(
   style: "normal" | "italic" = "normal",
   subset = "latin",
 ): string {
-  return `${CDN}/${font.id}@latest/${subset}-${weight}-${style}.woff2`
+  return `${PRIMARY_CDN}/${font.id}@latest/${subset}-${weight}-${style}.woff2`
+}
+
+/** All candidate URLs for a static weight, tried in order until one loads. */
+export function staticFontCandidates(
+  font: Pick<FontMeta, "id" | "subsets" | "defSubset">,
+  weight = 400,
+  style: "normal" | "italic" = "normal",
+  subset = "latin",
+): string[] {
+  const eff = effectiveSubset(font, subset)
+  const id = font.id
+  const file = `${eff}-${weight}-${style}.woff2`
+  const candidates = [
+    `${PRIMARY_CDN}/${id}@latest/${file}`,
+    `${FALLBACK_UNPKG}/${id}@latest/files/${id}-${file}`,
+    `${FALLBACK_NPM}/${id}@latest/files/${id}-${file}`,
+  ]
+  // If requested subset wasn't available, also try original requested as fallback
+  if (eff !== subset) {
+    const origFile = `${subset}-${weight}-${style}.woff2`
+    candidates.push(`${PRIMARY_CDN}/${id}@latest/${origFile}`)
+  }
+  return [...new Set(candidates)]
 }
 
 /**
@@ -114,7 +150,29 @@ export function variableFontUrl(
   style: "normal" | "italic" = "normal",
   subset = "latin",
 ): string {
-  return `${CDN}/${font.id}:vf@latest/${subset}-standard-${style}.woff2`
+  return `${PRIMARY_CDN}/${font.id}:vf@latest/${subset}-standard-${style}.woff2`
+}
+
+/** All candidate URLs for a variable file, tried in order. */
+export function variableFontCandidates(
+  font: Pick<FontMeta, "id" | "subsets" | "defSubset">,
+  style: "normal" | "italic" = "normal",
+  subset = "latin",
+): string[] {
+  const eff = effectiveSubset(font, subset)
+  const id = font.id
+  const file = `${eff}-standard-${style}.woff2`
+  const staticFall = `${eff}-400-${style}.woff2`
+  return [
+    `${PRIMARY_CDN}/${id}:vf@latest/${file}`,
+    `${FALLBACK_UNPKG_VAR}/${id}@latest/files/${id}-${file}`,
+    `${FALLBACK_NPM_VAR}/${id}@latest/files/${id}-${file}`,
+    // If latin variable not found (e.g. 42dot-sans), try defSubset variable
+    ...(eff !== subset ? [`${PRIMARY_CDN}/${id}:vf@latest/${subset}-standard-${style}.woff2`] : []),
+    // Ultimate fallback: static 400 for preview so text still renders in correct family
+    `${PRIMARY_CDN}/${id}@latest/${staticFall}`,
+    `${FALLBACK_UNPKG}/${id}@latest/files/${id}-${staticFall}`,
+  ]
 }
 
 /** Stylesheet URL listing every weight/style of one family (for detail pages). */

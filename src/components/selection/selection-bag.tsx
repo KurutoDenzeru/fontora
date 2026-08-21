@@ -68,8 +68,9 @@ if (typeof window !== "undefined") {
   })
 }
 
+const EMPTY_SNAPSHOT: string[] = []
 function useSelectionIds(): string[] {
-  return useSyncExternalStore(subscribe, () => snapshot, () => [])
+  return useSyncExternalStore(subscribe, () => snapshot, () => EMPTY_SNAPSHOT)
 }
 
 // --- UI ----------------------------------------------------------------------
