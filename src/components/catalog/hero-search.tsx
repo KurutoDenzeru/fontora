@@ -2,8 +2,8 @@ import { useEffect, useState } from "react"
 import { Search, X } from "lucide-react"
 
 /**
- * Centered search bar placed below the hero. Drives the catalog via
- * `fontora:search` CustomEvent + ?q= URL param, same contract the dock used before.
+ * Full-width search bar placed below the hero. Drives the catalog via
+ * `fontora:search` CustomEvent + ?q= URL param.
  */
 export function HeroSearch() {
   const [query, setQuery] = useState("")
@@ -33,8 +33,8 @@ export function HeroSearch() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="relative flex items-center rounded-full border bg-card shadow-sm">
+    <div className="w-full">
+      <div className="relative flex items-center rounded-xs border bg-card shadow-xs">
         <Search className="pointer-events-none absolute left-4 size-4 text-muted-foreground" aria-hidden="true" />
         <input
           type="search"
@@ -48,7 +48,7 @@ export function HeroSearch() {
           <button
             onClick={() => emit("")}
             aria-label="Clear search"
-            className="absolute right-2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="absolute right-2 rounded-xs p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="size-4" />
           </button>
