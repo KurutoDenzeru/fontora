@@ -3,15 +3,13 @@ import { FaGithub } from "react-icons/fa6"
 import { buttonVariants } from "@/components/ui/button"
 
 /**
- * Sticky full-width navbar — brand with lucide mark on the left,
- * GitHub action on the right. Detached floating behavior removed
- * per latest direction; remains visible at all scroll positions.
+ * Floating dock — w-full, detached with inset spacing.
  */
 export function DockNav() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+    <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav
-        className="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between px-4 md:px-6"
+        className="flex h-14 w-full max-w-[1400px] items-center justify-between rounded-xl border bg-background/70 px-4 shadow-lg shadow-black/5 backdrop-blur-md md:px-6"
         aria-label="Main"
       >
         <a href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
