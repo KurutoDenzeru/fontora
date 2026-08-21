@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CodeXml, Grid2x2, Info, Type } from "lucide-react"
+import { CodeXml, Info, Languages, Type } from "lucide-react"
 import { motion } from "motion/react"
 import SpecimenTab from "./specimen-tab"
-import GlyphGrid from "./glyph-grid"
+import GlyphsAndLanguages from "./glyphs-languages"
 import EmbedPanel from "./embed-panel"
 import AboutPanel from "./about-panel"
 import type { FontMeta } from "@/lib/fonts"
@@ -15,11 +15,15 @@ interface Props {
  * Google Fonts-style tabbed detail view. One island: inactive panels stay
  * unmounted until first activation, and per-panel font loading fires lazily
  * via each panel's own IntersectionObserver.
+ *
+ * Glyphs tab was expanded to "Glyphs & languages" (parity with
+ * https://fonts.google.com/specimen/Open+Sans/glyphs?preview.layout=grid):
+ * grid per language/script + large preview, filtered by font.subsets.
  */
 export default function DetailTabs({ font }: Props) {
   const panels: Array<{ id: string; content: React.ReactNode }> = [
     { id: "specimen", content: <SpecimenTab font={font} /> },
-    { id: "glyphs", content: <GlyphGrid font={font} /> },
+    { id: "glyphs", content: <GlyphsAndLanguages font={font} /> },
     { id: "embed", content: <EmbedPanel font={font} /> },
     { id: "about", content: <AboutPanel font={font} /> },
   ]
@@ -32,8 +36,8 @@ export default function DetailTabs({ font }: Props) {
           Specimen
         </TabsTrigger>
         <TabsTrigger value="glyphs" className="flex-1">
-          <Grid2x2 data-icon="inline-start" />
-          Glyphs
+          <Languages data-icon="inline-start" />
+          Glyphs & languages
         </TabsTrigger>
         <TabsTrigger value="embed" className="flex-1">
           <CodeXml data-icon="inline-start" />
