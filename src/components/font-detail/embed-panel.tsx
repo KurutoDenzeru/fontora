@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { AtSign, Braces, Check, Copy, Link2, Package } from "lucide-react"
+import { AtSign, Braces, Check, Copy, Link2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { embedCssUrl, fallbackStack, EMBED_API_HOST, EMBED_CDN_HOST, type FontMeta } from "@/lib/fonts"
@@ -48,12 +48,6 @@ export default function EmbedPanel({ font }: Props) {
       label: "CSS",
       icon: Braces,
       snippet: `font-family: '${font.family}', ${fallbackStack(font.category)};`,
-    },
-    {
-      id: "embed-npm",
-      label: "npm",
-      icon: Package,
-      snippet: `bun add ${font.variable ? `@fontsource-variable/${font.id}` : `@fontsource/${font.id}`}`,
     },
   ]
 
