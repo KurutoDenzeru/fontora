@@ -5,12 +5,14 @@ import {
   APPEARANCE_TAGS,
   EMPTY_FILTERS,
   MAX_STYLE_COUNT,
+  SPECIMEN_DEFAULT,
   fontsById,
   subsets,
   type AppearanceTag,
   type SidebarFilters,
 } from "@/lib/fonts"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
@@ -38,9 +40,15 @@ const APPEARANCE_LABELS: Record<AppearanceTag, string> = {
 export function FilterSidebar({
   value,
   onChange,
+  preview,
+  size,
+  onPreviewChange,
 }: {
   value: SidebarFilters
   onChange: (next: SidebarFilters) => void
+  preview: string
+  size: number
+  onPreviewChange: (patch: { preview?: string; size?: number }) => void
 }) {
   const [chipFontsReady, setChipFontsReady] = useState(false)
 
@@ -69,6 +77,29 @@ export function FilterSidebar({
 
   return (
     <div className="flex flex-col gap-8">
+      <section className="flex flex-col gap-3">
+        <h3 className="text-sm font-medium">Preview</h3>
+        <Input
+          type="text"
+          placeholder={SPECIMEN_DEFAULT}
+          value={preview}
+          onChange={(e) => onPreviewChange({ preview: e.target.value })}
+          aria-label="Custom preview text"
+        />
+        <div className="flex items-center gap-3">
+          <Slider
+            min={12}
+            max={96}
+            step={1}
+            value={[size]}
+            onValueChange={(v) => onPreviewChange({ size: (Array.isArray(v) ? v[0] : v) ?? 40 })}
+            aria-label="Preview font size"
+            className="flex-1"
+          />
+          <span className="w-10 text-right text-xs tabular-nums text-muted-foreground">{size}px</span>
+        </div>
+      </section>
+
       <section className="flex flex-col gap-3">
         <h3 className="text-sm font-medium">Writing system</h3>
         <Select value={value.subset} onValueChange={(subset) => onChange({ ...value, subset: subset ?? "all" })}>

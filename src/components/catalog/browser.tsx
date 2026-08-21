@@ -5,7 +5,6 @@ import {
   sortFonts,
   filterFonts,
   EMPTY_FILTERS,
-  SPECIMEN_DEFAULT,
   type AppearanceTag,
   type SidebarFilters,
   type SortKey,
@@ -15,7 +14,6 @@ import { SpecimenCard } from "./specimen-card"
 import { FilterSidebar } from "./filter-sidebar"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Sheet,
@@ -142,37 +140,14 @@ export function CatalogBrowser() {
         minStyles: state.minStyles,
       }}
       onChange={(filters) => update(filters)}
+      preview={state.preview}
+      size={state.size}
+      onPreviewChange={update}
     />
   )
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Preview pane: type anything, size it, watch every specimen follow. */}
-      <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
-        <input
-          type="text"
-          placeholder={SPECIMEN_DEFAULT}
-          value={state.preview}
-          onChange={(e) => update({ preview: e.target.value })}
-          aria-label="Custom preview text"
-          className="min-w-0 flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground"
-        />
-        <div className="flex w-full items-center gap-3 sm:w-64">
-          <Slider
-            min={12}
-            max={96}
-            step={1}
-            value={[state.size]}
-            onValueChange={(v) => update({ size: (Array.isArray(v) ? v[0] : v) ?? 40 })}
-            aria-label="Preview font size"
-            className="flex-1"
-          />
-          <span className="w-10 text-right text-xs tabular-nums text-muted-foreground">
-            {state.size}px
-          </span>
-        </div>
-      </div>
-
       {/* Results bar */}
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
