@@ -19,10 +19,10 @@ function oxcFixPlugin() {
       if ((/** @type {any} */ (config)).esbuild) {
         delete (/** @type {any} */ (config)).esbuild;
       }
-      // Translate optimizeDeps.esbuildOptions -> optimizeDeps.rolldownOptions
+      // Vite 7 warns about optimizeDeps.esbuildOptions; just drop it.
+      // The new key rolldownOptions has a different schema (esbuild's jsx: "automatic" is invalid there).
       const od = /** @type {any} */ (config).optimizeDeps;
       if (od && od.esbuildOptions) {
-        od.rolldownOptions = od.esbuildOptions;
         delete od.esbuildOptions;
       }
     },
