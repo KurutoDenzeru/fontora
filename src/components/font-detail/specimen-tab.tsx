@@ -13,8 +13,6 @@ interface Props {
   font: FontMeta
 }
 
-const DEFAULT_TEXT = "Almost before we knew it, we had left the ground."
-
 const AXIS_NAMES: Record<string, string> = {
   wght: "Weight",
   opsz: "Optical size",
@@ -46,7 +44,7 @@ export default function SpecimenTab({ font }: Props) {
   const [size, setSize] = useState(36)
   const [weight, setWeight] = useState("400")
   const [values, setValues] = useState<Record<string, number>>(defaults)
-  const [preview, setPreview] = useState(DEFAULT_TEXT)
+  const [preview, setPreview] = useState("")
 
   const style = italic ? "italic" : "normal"
 
@@ -75,112 +73,109 @@ export default function SpecimenTab({ font }: Props) {
   const displayText = preview.trim() ? preview : SPECIMEN_DEFAULT
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Preview pane — same pattern as catalog FilterSidebar, now driving the Specimen tab */}
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-medium">Preview</h3>
-        <Textarea
-          placeholder={SPECIMEN_DEFAULT}
-          value={preview}
-          onChange={(e) => setPreview(e.target.value)}
-          aria-label="Custom preview text"
-          rows={3}
-          className="min-h-28 resize-y whitespace-pre-wrap break-words text-sm leading-relaxed"
-        />
-      </section>
+    <div className="grid gap-10 md:grid-cols-[15rem_1fr]">
+      <aside className="flex flex-col gap-6 self-start md:sticky md:top-28">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">{font.variable ? "Variable axes" : "Controls"}</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setValues(defaults)
+              setSize(36)
+              setWeight("400")
+              setItalic(false)
+              setPreview("")
+            }}
+            aria-label="Reset controls"
+          >
+            <RotateCcw data-icon="inline-start" />
+            Reset
+          </Button>
+        </div>
 
-      <div className="grid gap-10 md:grid-cols-[15rem_1fr]">
-        <aside className="flex flex-col gap-6 self-start md:sticky md:top-28">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{font.variable ? "Variable axes" : "Controls"}</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setValues(defaults)
-                setSize(36)
-                setWeight("400")
-                setItalic(false)
-                setPreview(DEFAULT_TEXT)
-              }}
-              aria-label="Reset controls"
-            >
-              <RotateCcw data-icon="inline-start" />
-              Reset
-            </Button>
+        <section className="flex flex-col gap-3">
+          <h3 className="text-sm font-medium">Preview</h3>
+          <Textarea
+            placeholder={SPECIMEN_DEFAULT}
+            value={preview}
+            onChange={(e) => setPreview(e.target.value)}
+            aria-label="Custom preview text"
+            rows={3}
+            className="min-h-28 resize-y whitespace-pre-wrap break-words text-sm leading-relaxed"
+          />
+        </section>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Size</span>
+            <span className="tabular-nums text-muted-foreground">{size}px</span>
           </div>
+          <Slider
+            min={12}
+            max={128}
+            step={1}
+            value={[size]}
+            onValueChange={(v) => setSize(Array.isArray(v) ? v[0] : v)}
+            aria-label="Preview size"
+          />
+        </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Size</span>
-              <span className="tabular-nums text-muted-foreground">{size}px</span>
-            </div>
-            <Slider
-              min={12}
-              max={128}
-              step={1}
-              value={[size]}
-              onValueChange={(v) => setSize(Array.isArray(v) ? v[0] : v)}
-              aria-label="Preview size"
-            />
-          </div>
-
-          {axisTags.map((tag) => {
-            const axis = axes[tag]
-            const value = values[tag] ?? axis.default
-            return (
-              <div key={tag} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{AXIS_NAMES[tag] ?? tag}</span>
-                  <span className="tabular-nums text-muted-foreground">{value}</span>
-                </div>
-                <Slider
-                  min={axis.min}
-                  max={axis.max}
-                  step={axis.step}
-                  value={[value]}
-                  onValueChange={(v) =>
-                    setValues((prev) => ({ ...prev, [tag]: Array.isArray(v) ? v[0] : v }))
-                  }
-                  aria-label={`${AXIS_NAMES[tag] ?? tag} axis`}
-                  disabled={!loaded}
-                />
+        {axisTags.map((tag) => {
+          const axis = axes[tag]
+          const value = values[tag] ?? axis.default
+          return (
+            <div key={tag} className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{AXIS_NAMES[tag] ?? tag}</span>
+                <span className="tabular-nums text-muted-foreground">{value}</span>
               </div>
-            )
-          })}
-
-          {!font.variable && font.weights.length > 1 && (
-            <div className="flex flex-col gap-2">
-              <span className="text-sm text-muted-foreground">Weight</span>
-              <ToggleGroup value={[weight]} onValueChange={(v) => v.length > 0 && setWeight(v[0])}>
-                {font.weights.map((w) => (
-                  <ToggleGroupItem key={w} value={String(w)} variant="outline" size="sm">
-                    {w}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+              <Slider
+                min={axis.min}
+                max={axis.max}
+                step={axis.step}
+                value={[value]}
+                onValueChange={(v) =>
+                  setValues((prev) => ({ ...prev, [tag]: Array.isArray(v) ? v[0] : v }))
+                }
+                aria-label={`${AXIS_NAMES[tag] ?? tag} axis`}
+                disabled={!loaded}
+              />
             </div>
-          )}
+          )
+        })}
 
-          {hasItalic && (
-            <label className="flex w-fit items-center gap-2 text-sm">
-              <Switch checked={italic} onCheckedChange={setItalic} aria-label="Toggle italic" />
-              Italic
-            </label>
-          )}
-        </aside>
-
-        <div className="flex min-w-0 flex-col gap-10">
-          <div className="rounded-md border p-6">
-            <p className="leading-relaxed break-words whitespace-pre-wrap" style={previewStyle}>
-              {displayText}
-            </p>
+        {!font.variable && font.weights.length > 1 && (
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-muted-foreground">Weight</span>
+            <ToggleGroup value={[weight]} onValueChange={(v) => v.length > 0 && setWeight(v[0])}>
+              {font.weights.map((w) => (
+                <ToggleGroupItem key={w} value={String(w)} variant="outline" size="sm">
+                  {w}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
+        )}
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium">All styles</h3>
-            <StyleList font={font} specimen={displayText} />
-          </div>
+        {hasItalic && (
+          <label className="flex w-fit items-center gap-2 text-sm">
+            <Switch checked={italic} onCheckedChange={setItalic} aria-label="Toggle italic" />
+            Italic
+          </label>
+        )}
+      </aside>
+
+      <div className="flex min-w-0 flex-col gap-10">
+        <div className="rounded-md border p-6">
+          <p className="leading-relaxed break-words whitespace-pre-wrap" style={previewStyle}>
+            {displayText}
+          </p>
+        </div>
+
+        <div>
+          <h3 className="mb-2 text-sm font-medium">All styles</h3>
+          <StyleList font={font} specimen={displayText} />
         </div>
       </div>
     </div>

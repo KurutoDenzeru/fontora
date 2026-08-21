@@ -2,6 +2,7 @@ import { FaGithub } from "react-icons/fa6"
 import { buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/theme-toggle"
+
 /**
  * Floating dock — w-full, detached with inset spacing.
  * Right side: GitHub link, vertical separator, and a sun/moon theme toggle.
@@ -14,10 +15,9 @@ export function DockNav() {
         aria-label="Main"
       >
         <a href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
-          <img src="/brand.webp" alt="Fontora" width={28} height={28} className="size-7 rounded-md object-contain" loading="eager" decoding="async" />
+          <img src="/brand.webp" alt="Fontora" width={28} height={28} className="size-7 rounded-md object-contain" loading="eager" decoding="async" fetchPriority="high" />
           Fontora
         </a>
-
         <div className="flex items-center gap-2">
           <a
             href="https://github.com/KurutoDenzeru/fontora"

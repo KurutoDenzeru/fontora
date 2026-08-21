@@ -1,4 +1,5 @@
 import fontsData from "@/data/fonts.json"
+import variableAxisMap from "@/data/variable-axis-map.json"
 
 export interface FontAxis {
   min: number
@@ -143,11 +144,18 @@ export function staticFontCandidates(
  * Single-axis files (wght, opsz, …) also exist, but `standard` covers playground use.
  */
 export function variableFontUrl(
-  font: Pick<FontMeta, "id">,
+  font: Pick<FontMeta, "id" | "axes">,
   style: "normal" | "italic" = "normal",
   subset = "latin",
 ): string {
-  return `${PRIMARY_CDN}/${font.id}:vf@latest/${subset}-standard-${style}.woff2`
+  // Use the precomputed correct axis from variable-axis-map.json (derived from
+  // @fontsource-variable index.css). This avoids the previous 4×404 fallback
+  // chain (standard/full/wght trial) that polluted the console.
+  const mapped = (variableAxisMap as Record<string, string>)[font.id]
+  const axes = font.axes ? Object.keys(font.axes).map((a) => a.toLowerCase()) : []
+  const axis = (mapped ?? axes.find((a) => a !== "wght") ?? (axes.includes("wght") ? "wght" : "standard")).toLowerCase()
+  const file = `${subset}-${axis}-${style}.woff2`
+  return `${PRIMARY_CDN}/${font.id}:vf@latest/${file}`
 }
 
 /** All candidate URLs for a variable file, tried in order. */
@@ -158,30 +166,22 @@ export function variableFontCandidates(
 ): string[] {
   const eff = effectiveSubset(font, subset)
   const id = font.id
-  const axes = font.axes ? Object.keys(font.axes) : []
-  // Build axis-specific file names: wght first, then other axes, then standard
-  const axisFiles = (() => {
-    const order: string[] = []
-    if (axes.includes("wght")) order.push("wght")
-    for (const a of axes) if (a !== "wght") order.push(a)
-    if (!order.includes("standard")) order.push("standard")
-    return order.map((axis) => `${eff}-${axis}-${style}.woff2`)
-  })()
+  // Precomputed correct axis from @fontsource-variable index.css (see
+  // src/data/variable-axis-map.json). This is the single file that is known
+  // to exist for `latin` at the CDN (wght for 549 fonts, morf/opsz/year/elsh/
+  // full/wdth for the rest). Using one correct URL eliminates the previous
+  // 4×404 trial chain (standard/full/wght) that spammed the console.
+  const mapped = (variableAxisMap as Record<string, string>)[id]
+  const rawAxes = font.axes ? Object.keys(font.axes) : []
+  const axesLower = rawAxes.map((a) => a.toLowerCase())
+  const correctAxis = (mapped ?? axesLower.find((a) => a !== "wght") ?? (axesLower.includes("wght") ? "wght" : "standard")).toLowerCase()
+  const file = `${eff}-${correctAxis}-${style}.woff2`
   const staticFall = `${eff}-400-${style}.woff2`
-  const vfCandidates: string[] = []
-  for (const file of axisFiles) {
-    vfCandidates.push(`${PRIMARY_CDN}/${id}:vf@latest/${file}`)
-    vfCandidates.push(`${FALLBACK_NPM_VAR}/${id}@latest/files/${id}-${file}`)
-  }
-  if (eff !== subset) {
-    for (const axis of [...(axes.includes("wght") ? ["wght"] : []), "standard"]) {
-      const orig = `${subset}-${axis}-${style}.woff2`
-      vfCandidates.push(`${PRIMARY_CDN}/${id}:vf@latest/${orig}`)
-    }
-  }
+  // Only the correct variable file + static fallback — no multi-candidate 404 chain.
   return [
-    ...vfCandidates,
-    // Ultimate fallback: static 400 for preview so text still renders in correct family
+    `${PRIMARY_CDN}/${id}:vf@latest/${file}`,
+    `${FALLBACK_NPM_VAR}/${id}@latest/files/${id}-${file}`,
+    // Ultimate fallback: static 400 so preview still renders even if variable is missing
     `${PRIMARY_CDN}/${id}@latest/${staticFall}`,
     `${FALLBACK_NPM}/${id}@latest/files/${id}-${staticFall}`,
   ]
