@@ -1,33 +1,36 @@
-import { useState } from "react"
-import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react"
+import { Type } from "lucide-react"
+import { FaGithub } from "react-icons/fa6"
+import { buttonVariants } from "@/components/ui/button"
 
 /**
- * Floating dock navbar — minimal brand mark, detached pill.
+ * Sticky full-width navbar — brand with lucide mark on the left,
+ * GitHub action on the right. Detached floating behavior removed
+ * per latest direction; remains visible at all scroll positions.
  */
 export function DockNav() {
-  const reduce = useReducedMotion()
-  const { scrollY } = useScroll()
-  const [hidden, setHidden] = useState(false)
-
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0
-    setHidden(y > prev && y > 140)
-  })
-
   return (
-    <motion.header
-      animate={{ y: hidden && !reduce ? "-140%" : "0%" }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
-    >
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <nav
-        className="flex h-10 items-center rounded-full border bg-background/70 px-4 shadow-lg shadow-black/5 backdrop-blur-md"
+        className="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between px-4 md:px-6"
         aria-label="Main"
       >
-        <a href="/" className="text-sm font-semibold tracking-tight">
+        <a href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
+          <span className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Type className="size-3.5" />
+          </span>
           Fontora
         </a>
+
+        <a
+          href="https://github.com/KurutoDenzeru/fontora"
+          target="_blank"
+          rel="noreferrer"
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          <FaGithub data-icon="inline-start" />
+          GitHub
+        </a>
       </nav>
-    </motion.header>
+    </header>
   )
 }
