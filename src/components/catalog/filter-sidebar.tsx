@@ -12,9 +12,9 @@ import {
   type SidebarFilters,
 } from "@/lib/fonts"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
+import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
 /**
@@ -79,12 +79,13 @@ export function FilterSidebar({
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
         <h3 className="text-sm font-medium">Preview</h3>
-        <Input
-          type="text"
+        <Textarea
           placeholder={SPECIMEN_DEFAULT}
           value={preview}
           onChange={(e) => onPreviewChange({ preview: e.target.value })}
           aria-label="Custom preview text"
+          rows={3}
+          className="min-h-28 resize-y whitespace-pre-wrap break-words text-sm leading-relaxed"
         />
         <div className="flex items-center gap-3">
           <Slider
