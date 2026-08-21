@@ -1,5 +1,5 @@
 import { useState, useSyncExternalStore } from "react"
-import { Check, Copy, Layers, X } from "lucide-react"
+import { AtSign, Braces, Check, Copy, Layers, Link2, X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -75,30 +75,9 @@ function useSelectionIds(): string[] {
 
 // --- UI ----------------------------------------------------------------------
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text)
-          setCopied(true)
-          toast.success("Copied embed code")
-          setTimeout(() => setCopied(false), 2000)
-        } catch {
-          toast.error("Copy failed")
-        }
-      }}
-    >
-      {copied ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
-      {copied ? "Copied" : "Copy"}
-    </Button>
-  )
-}
-
 function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
+  const [copied, setCopied] = useState<string | null>(null)
+
   const cssUrl = embedCssUrl(
     selectedFonts.map((f) => ({
       family: f.family,
@@ -106,7 +85,7 @@ function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
     })),
   )
 
-  const snippets = {
+  const snippets: Record<string, string> = {
     link: [
       `<link rel="preconnect" href="${EMBED_API_HOST}" />`,
       `<link rel="preconnect" href="${EMBED_CDN_HOST}" crossorigin />`,
@@ -118,28 +97,48 @@ function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
       .join("\n"),
   }
 
-  const tabs: Array<{ id: keyof typeof snippets; label: string }> = [
-    { id: "link", label: "<link>" },
-    { id: "import", label: "@import" },
-    { id: "css", label: "CSS" },
+  const tabs: Array<{ id: string; label: string; icon: typeof Link2 }> = [
+    { id: "link", label: "<link>", icon: Link2 },
+    { id: "import", label: "@import", icon: AtSign },
+    { id: "css", label: "CSS", icon: Braces },
   ]
+
+  async function handleCopy(id: string) {
+    try {
+      await navigator.clipboard.writeText(snippets[id])
+      setCopied(id)
+      toast.success("Copied embed code")
+      setTimeout(() => setCopied(null), 2000)
+    } catch {
+      toast.error("Copy failed")
+    }
+  }
 
   return (
     <Tabs defaultValue="link">
       <TabsList className="w-full">
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id} className="flex-1">
+          <TabsTrigger key={tab.id} value={tab.id} className="flex-1 gap-1.5">
+            <tab.icon data-icon="inline-start" />
             {tab.label}
           </TabsTrigger>
         ))}
       </TabsList>
       {tabs.map((tab) => (
         <TabsContent key={tab.id} value={tab.id} className="pt-4">
-          <pre className="overflow-x-auto rounded-md bg-muted p-4 font-mono text-xs whitespace-pre">
-            <code>{snippets[tab.id]}</code>
-          </pre>
-          <div className="mt-3 flex justify-end">
-            <CopyButton text={snippets[tab.id]} />
+          <div className="group relative">
+            <pre className="overflow-x-auto rounded-md bg-muted p-4 pr-12 font-mono text-xs whitespace-pre">
+              <code>{snippets[tab.id]}</code>
+            </pre>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => handleCopy(tab.id)}
+              aria-label={copied === tab.id ? "Copied" : "Copy"}
+              className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+            >
+              {copied === tab.id ? <Check /> : <Copy />}
+            </Button>
           </div>
         </TabsContent>
       ))}
@@ -173,7 +172,7 @@ export function SelectionBag() {
           </Button>
         }
       />
-      <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+      <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
         <DialogHeader className="border-b px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Layers className="size-4 text-muted-foreground" />

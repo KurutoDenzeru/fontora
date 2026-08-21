@@ -110,20 +110,21 @@ export default function EmbedPanel({ font }: Props) {
       <div className="flex min-w-0 flex-col gap-10">
         {sections.map((section) => (
           <section key={section.id} id={section.id} className="scroll-mt-28">
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <h3 className="text-sm font-medium">{section.label}</h3>
-              <Button variant="ghost" size="sm" onClick={() => copy(section)}>
-                {copied === section.id ? (
-                  <Check data-icon="inline-start" />
-                ) : (
-                  <Copy data-icon="inline-start" />
-                )}
-                {copied === section.id ? "Copied" : "Copy"}
+            <h3 className="mb-3 text-sm font-medium">{section.label}</h3>
+            <div className="group relative">
+              <pre className="overflow-x-auto rounded-md bg-muted p-4 pr-12 font-mono text-sm whitespace-pre">
+                <code>{section.snippet}</code>
+              </pre>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => copy(section)}
+                aria-label={copied === section.id ? "Copied" : "Copy"}
+                className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              >
+                {copied === section.id ? <Check /> : <Copy />}
               </Button>
             </div>
-            <pre className="overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm whitespace-pre">
-              <code>{section.snippet}</code>
-            </pre>
           </section>
         ))}
       </div>

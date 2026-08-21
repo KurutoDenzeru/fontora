@@ -14,7 +14,7 @@ import { SpecimenCard } from "./specimen-card"
 import { FilterSidebar } from "./filter-sidebar"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Sheet,
   SheetContent,
@@ -73,7 +73,7 @@ export function CatalogBrowser() {
   const [displayedCount, setDisplayedCount] = useState(PAGE_SIZE)
 
   // Hydrate from URL after mount (server render has no location) and subscribe
-  // to the dock's search field. setState here is post-mount hydration sync.
+  // to the hero search field. setState here is post-mount hydration sync.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(readUrlState())
@@ -182,18 +182,16 @@ export function CatalogBrowser() {
             </SelectContent>
           </Select>
 
-          <ToggleGroup
-            value={[state.view]}
-            onValueChange={(v) => v.length > 0 && update({ view: v[0] as "grid" | "row" })}
-            aria-label="View mode"
-          >
-            <ToggleGroupItem value="grid" variant="outline" size="sm" aria-label="Grid view">
-              <LayoutGrid />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="row" variant="outline" size="sm" aria-label="Row view">
-              <Rows3 />
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <Tabs value={state.view} onValueChange={(v) => update({ view: v as "grid" | "row" })}>
+            <TabsList className="h-8">
+              <TabsTrigger value="grid" aria-label="Grid view" className="px-2">
+                <LayoutGrid className="size-4" />
+              </TabsTrigger>
+              <TabsTrigger value="row" aria-label="Row view" className="px-2">
+                <Rows3 className="size-4" />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 

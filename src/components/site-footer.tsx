@@ -1,10 +1,8 @@
 import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa6"
+import { ThemeSelector } from "@/components/theme-selector"
 
 /**
- * Site footer. Rendered server-side from the layout with no client directive,
- * so it ships zero JavaScript.
- *
- * Socials: swap the hrefs here once the real handles exist.
+ * Site footer. Socials: swap the hrefs here once the real handles exist.
  */
 const SOCIALS = [
   { label: "GitHub", href: "https://github.com/KurutoDenzeru/fontora", Icon: FaGithub },
@@ -75,9 +73,14 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-2 border-t py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Fontora</span>
-          <span>Fonts served by the Fontsource CDN. Every family ships with its license.</span>
+        <div className="flex flex-col gap-4 border-t py-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <span className="text-sm text-muted-foreground">© 2026 Fontora</span>
+            <ThemeSelector />
+          </div>
+          <span className="text-sm text-muted-foreground">
+            Fonts served by the Fontsource CDN. Every family ships with its license.
+          </span>
         </div>
 
         <div aria-hidden="true" className="select-none overflow-hidden pb-2">

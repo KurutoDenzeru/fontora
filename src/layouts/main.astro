@@ -30,9 +30,9 @@ const {
     <script is:inline>
       {
         const stored = localStorage.getItem("fontora:theme")
-        if (stored === "dark" || (!stored && matchMedia("(prefers-color-scheme: dark)").matches)) {
-          document.documentElement.classList.add("dark")
-        }
+        const isDark =
+          stored === "dark" || ((stored === "system" || !stored) && matchMedia("(prefers-color-scheme: dark)").matches)
+        document.documentElement.classList.toggle("dark", isDark)
       }
     </script>
   </head>
@@ -41,7 +41,7 @@ const {
     <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 pt-20 md:px-6">
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter client:load />
     <Toaster client:load />
     <SelectionBag client:load />
   </body>
