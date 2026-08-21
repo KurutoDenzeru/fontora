@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -155,6 +154,7 @@ export function SelectionBag() {
     .filter((f): f is FontMeta => f !== undefined)
 
   // Derived: removing the last font while open closes the dialog automatically.
+  // Adding a font does NOT auto-open — user must click the trigger.
   const isOpen = open && selectedFonts.length > 0
 
   if (selectedFonts.length === 0 && !isOpen) return null
@@ -172,9 +172,9 @@ export function SelectionBag() {
           </Button>
         }
       />
-      <DialogContent className="flex max-h-[min(85vh,720px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
-        <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4">
-          <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl lg:max-w-3xl">
+        <DialogHeader className="shrink-0 gap-2 border-b px-6 py-5 text-left">
+          <DialogTitle className="flex items-center gap-2 text-base">
             <Layers className="size-4 text-muted-foreground" />
             Your selection
           </DialogTitle>
@@ -184,8 +184,8 @@ export function SelectionBag() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
-          <div className="flex flex-col gap-2">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex flex-col gap-2 p-6">
             {selectedFonts.map((font) => (
               <div
                 key={font.id}
@@ -205,27 +205,33 @@ export function SelectionBag() {
                   size="icon-sm"
                   onClick={() => toggleFont(font.id)}
                   aria-label={`Remove ${font.family}`}
-                  className="opacity-60 transition-opacity group-hover:opacity-100"
+                  className="shrink-0 opacity-60 transition-opacity group-hover:opacity-100"
                 >
-                  <X />
+                  <X className="size-4" />
                 </Button>
               </div>
             ))}
           </div>
 
-          <Separator className="my-4" />
-
-          <EmbedTabs selectedFonts={selectedFonts} />
+          <div className="px-6 pb-6">
+            <Separator className="mb-4" />
+            <EmbedTabs selectedFonts={selectedFonts} />
+          </div>
         </div>
 
-        <DialogFooter className="shrink-0 flex-row items-center justify-between gap-2 border-t bg-muted/20 px-6 py-4 max-sm:flex-col-reverse max-sm:items-stretch">
-          <Button variant="ghost" size="sm" onClick={clearAll} className="max-sm:w-full">
+        <div className="flex shrink-0 flex-col-reverse gap-2 border-t bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="w-full sm:w-auto"
+          >
             Clear all
           </Button>
-          <Button onClick={() => setOpen(false)} className="max-sm:w-full">
+          <Button onClick={() => setOpen(false)} className="w-full sm:w-auto">
             Done
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   )

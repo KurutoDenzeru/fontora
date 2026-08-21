@@ -35,13 +35,13 @@ export function SiteFooter() {
     <footer className="border-t">
       <div className="mx-auto w-full max-w-[1400px] px-4 md:px-6">
         <div className="grid gap-10 py-12 md:grid-cols-[1fr_auto_auto] md:gap-16">
-          <div className="flex max-w-xs flex-col gap-4">
+          <div className="flex max-w-sm flex-col gap-4">
             <span className="text-lg font-semibold tracking-tight">Fontora</span>
             <p className="text-sm leading-relaxed text-muted-foreground">
               A curated catalog of open-source type. Live specimens, variable playgrounds, and embed
               snippets for every family.
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1">
                 {SOCIALS.map(({ label, href, Icon }) => (
                   <a
@@ -50,13 +50,13 @@ export function SiteFooter() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label={label}
-                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     <Icon className="size-4" />
                   </a>
                 ))}
               </div>
-              <div className="h-4 w-px bg-border" aria-hidden="true" />
+              <div className="hidden h-4 w-px bg-border sm:block" aria-hidden="true" />
               <ThemeSelector />
             </div>
           </div>
@@ -79,7 +79,9 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-2 border-t py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>© 2026 Fontora</span>
-          <span>Fonts served by the Fontsource CDN. Every family ships with its license.</span>
+          <span className="max-w-[36ch] sm:max-w-none sm:text-right">
+            Fonts served by the Fontsource CDN. Every family ships with its license.
+          </span>
         </div>
 
         <div aria-hidden="true" className="select-none overflow-hidden pb-2">
