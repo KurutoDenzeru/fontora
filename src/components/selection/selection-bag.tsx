@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { fallbackStack, fontsById, googleFontsCssUrl, type FontMeta } from "@/lib/fonts"
+import { fallbackStack, fontsById, embedCssUrl, EMBED_API_HOST, EMBED_CDN_HOST, type FontMeta } from "@/lib/fonts"
 
 const STORAGE_KEY = "fontora:selection"
 
@@ -99,7 +99,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
-  const cssUrl = googleFontsCssUrl(
+  const cssUrl = embedCssUrl(
     selectedFonts.map((f) => ({
       family: f.family,
       weights: [400, 700].filter((w) => f.weights.includes(w)),
@@ -108,8 +108,8 @@ function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
 
   const snippets = {
     link: [
-      `<link rel="preconnect" href="https://fonts.googleapis.com" />`,
-      `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />`,
+      `<link rel="preconnect" href="${EMBED_API_HOST}" />`,
+      `<link rel="preconnect" href="${EMBED_CDN_HOST}" crossorigin />`,
       `<link href="${cssUrl}" rel="stylesheet" />`,
     ].join("\n"),
     import: `@import url("${cssUrl}");`,

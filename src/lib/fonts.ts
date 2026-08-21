@@ -127,8 +127,12 @@ export function familyCssUrls(font: FontMeta, subset = "latin"): string[] {
   )
 }
 
-/** Google Fonts CSS2 API embed URL for user-facing copy-paste snippets. */
-export function googleFontsCssUrl(
+/** Embed snippet hosts: Coollabs Fonts, a privacy-friendly drop-in for the Google Fonts CSS2 API. */
+export const EMBED_API_HOST = "https://api.fonts.coollabs.io"
+export const EMBED_CDN_HOST = "https://cdn.fonts.coollabs.io"
+
+/** CSS2-compatible embed URL for user-facing copy-paste snippets. */
+export function embedCssUrl(
   selected: Array<{ family: string; weights?: number[]; range?: [number, number] }>,
 ): string {
   const params = selected
@@ -140,7 +144,7 @@ export function googleFontsCssUrl(
       return `family=${name}:wght@${sorted.join(";")}`
     })
     .join("&")
-  return `https://fonts.googleapis.com/css2?${params}&display=swap`
+  return `${EMBED_API_HOST}/css2?${params}&display=swap`
 }
 
 export type SortKey = "alpha" | "newest" | "styles"

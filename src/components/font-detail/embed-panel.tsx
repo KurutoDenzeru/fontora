@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { AtSign, Braces, Check, Copy, Link2, Package } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { googleFontsCssUrl, fallbackStack, type FontMeta } from "@/lib/fonts"
+import { embedCssUrl, fallbackStack, EMBED_API_HOST, EMBED_CDN_HOST, type FontMeta } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -20,7 +20,7 @@ export default function EmbedPanel({ font }: Props) {
   // Variable fonts embed as a weight range; static fonts as the text pair.
   const wghtAxis = font.variable ? font.axes?.wght : undefined
   const staticWeights = [400, 700].filter((w) => font.weights.includes(w))
-  const cssUrl = googleFontsCssUrl([
+  const cssUrl = embedCssUrl([
     wghtAxis
       ? { family: font.family, range: [wghtAxis.min, wghtAxis.max] }
       : { family: font.family, weights: staticWeights.length ? staticWeights : undefined },
@@ -32,8 +32,8 @@ export default function EmbedPanel({ font }: Props) {
       label: "<link>",
       icon: Link2,
       snippet: [
-        `<link rel="preconnect" href="https://fonts.googleapis.com" />`,
-        `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />`,
+        `<link rel="preconnect" href="${EMBED_API_HOST}" />`,
+        `<link rel="preconnect" href="${EMBED_CDN_HOST}" crossorigin />`,
         `<link href="${cssUrl}" rel="stylesheet" />`,
       ].join("\n"),
     },
