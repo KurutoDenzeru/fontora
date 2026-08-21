@@ -1,10 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import StyleList from "./style-list"
-import TypeTester from "./type-tester"
+import { CodeXml, Grid2x2, Info, Type } from "lucide-react"
+import SpecimenTab from "./specimen-tab"
 import GlyphGrid from "./glyph-grid"
 import EmbedPanel from "./embed-panel"
 import AboutPanel from "./about-panel"
-import { SPECIMEN_DEFAULT, type FontMeta } from "@/lib/fonts"
+import type { FontMeta } from "@/lib/fonts"
 
 interface Props {
   font: FontMeta
@@ -18,19 +18,27 @@ interface Props {
 export default function DetailTabs({ font }: Props) {
   return (
     <Tabs defaultValue="specimen">
-      <TabsList variant="line" className="w-full justify-start gap-6 border-b">
-        <TabsTrigger value="specimen">Specimen</TabsTrigger>
-        <TabsTrigger value="tester">Type tester</TabsTrigger>
-        <TabsTrigger value="glyphs">Glyphs</TabsTrigger>
-        <TabsTrigger value="embed">Embed code</TabsTrigger>
-        <TabsTrigger value="about">About & License</TabsTrigger>
+      <TabsList>
+        <TabsTrigger value="specimen">
+          <Type data-icon="inline-start" />
+          Specimen
+        </TabsTrigger>
+        <TabsTrigger value="glyphs">
+          <Grid2x2 data-icon="inline-start" />
+          Glyphs
+        </TabsTrigger>
+        <TabsTrigger value="embed">
+          <CodeXml data-icon="inline-start" />
+          Embed code
+        </TabsTrigger>
+        <TabsTrigger value="about">
+          <Info data-icon="inline-start" />
+          About & License
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="specimen" className="pt-8">
-        <StyleList font={font} specimen={SPECIMEN_DEFAULT} />
-      </TabsContent>
-      <TabsContent value="tester" className="pt-8">
-        <TypeTester font={font} />
+        <SpecimenTab font={font} />
       </TabsContent>
       <TabsContent value="glyphs" className="pt-8">
         <GlyphGrid font={font} />

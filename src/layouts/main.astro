@@ -1,8 +1,8 @@
 ---
 import "@/styles/global.css"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Toaster } from "@/components/ui/sonner"
 import { SelectionBag } from "@/components/selection/selection-bag"
+import { DockNav } from "@/components/dock-nav"
 
 interface Props {
   title?: string
@@ -36,19 +36,8 @@ const {
     </script>
   </head>
   <body class="flex min-h-[100dvh] flex-col">
-    <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-sm">
-      <div class="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between px-4 md:px-6">
-        <a href="/" class="text-lg font-semibold tracking-tight">Fontora</a>
-        <nav class="flex items-center gap-6 text-sm text-muted-foreground">
-          <a href="/" class="transition-colors hover:text-foreground">Catalog</a>
-          <a href="/#collections" class="transition-colors hover:text-foreground">Collections</a>
-        </nav>
-        <div class="flex items-center gap-1">
-          <ThemeToggle client:load />
-        </div>
-      </div>
-    </header>
-    <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 md:px-6">
+    <DockNav client:load />
+    <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 pt-20 md:px-6">
       <slot />
     </main>
     <footer class="border-t py-8">

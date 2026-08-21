@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
-import { Search, X } from "lucide-react"
+import { X } from "lucide-react"
 import {
   fonts,
   categories,
@@ -62,6 +62,15 @@ export function CatalogBrowser() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(readUrlState())
+
+    // Search lives in the floating dock; it forwards queries here.
+    const onSearch = (event: Event) => {
+      const q = (event as CustomEvent<string>).detail
+      setState((prev) => ({ ...prev, q: typeof q === "string" ? q : prev.q }))
+      setDisplayedCount(PAGE_SIZE)
+    }
+    window.addEventListener("fontora:search", onSearch)
+    return () => window.removeEventListener("fontora:search", onSearch)
   }, [])
 
   const update = useCallback((patch: Partial<CatalogState>) => {
@@ -96,20 +105,8 @@ export function CatalogBrowser() {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-14 z-30 -mx-4 flex flex-col gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur-sm md:-mx-6 md:px-6">
+      <div className="sticky top-4 z-30 -mx-4 flex flex-col gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur-sm md:-mx-6 md:px-6">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-48 flex-1">
-            <Search data-icon="inline-start" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search families"
-              value={state.q}
-              onChange={(e) => update({ q: e.target.value })}
-              className="pl-9"
-              aria-label="Search font families"
-            />
-          </div>
-
           <Select value={state.category} onValueChange={(category) => update({ category: category ?? "all" })}>
             <SelectTrigger className="w-44" aria-label="Filter by category">
               <SelectValue>
@@ -193,7 +190,10 @@ export function CatalogBrowser() {
               <Button
                 variant="outline"
                 className="mt-2"
-                onClick={() => update({ q: "", category: "all", sort: "alpha", variable: false })}
+                onClick={() => {
+                  update({ q: "", category: "all", sort: "alpha", variable: false })
+                  window.dispatchEvent(new CustomEvent("fontora:search", { detail: "" }))
+                }}
               >
                 Reset filters
               </Button>
