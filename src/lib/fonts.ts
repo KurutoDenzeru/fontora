@@ -96,8 +96,6 @@ export function fallbackStack(category: string): string {
 
 // Primary Fontsource CDN (jsDelivr) and opensource fallbacks
 const PRIMARY_CDN = "https://cdn.jsdelivr.net/fontsource/fonts"
-const FALLBACK_UNPKG = "https://unpkg.com/@fontsource"
-const FALLBACK_UNPKG_VAR = "https://unpkg.com/@fontsource-variable"
 const FALLBACK_NPM = "https://cdn.jsdelivr.net/npm/@fontsource"
 const FALLBACK_NPM_VAR = "https://cdn.jsdelivr.net/npm/@fontsource-variable"
 
@@ -130,7 +128,6 @@ export function staticFontCandidates(
   const file = `${eff}-${weight}-${style}.woff2`
   const candidates = [
     `${PRIMARY_CDN}/${id}@latest/${file}`,
-    `${FALLBACK_UNPKG}/${id}@latest/files/${id}-${file}`,
     `${FALLBACK_NPM}/${id}@latest/files/${id}-${file}`,
   ]
   // If requested subset wasn't available, also try original requested as fallback
@@ -155,23 +152,38 @@ export function variableFontUrl(
 
 /** All candidate URLs for a variable file, tried in order. */
 export function variableFontCandidates(
-  font: Pick<FontMeta, "id" | "subsets" | "defSubset">,
+  font: Pick<FontMeta, "id" | "subsets" | "defSubset" | "axes">,
   style: "normal" | "italic" = "normal",
   subset = "latin",
 ): string[] {
   const eff = effectiveSubset(font, subset)
   const id = font.id
-  const file = `${eff}-standard-${style}.woff2`
+  const axes = font.axes ? Object.keys(font.axes) : []
+  // Build axis-specific file names: wght first, then other axes, then standard
+  const axisFiles = (() => {
+    const order: string[] = []
+    if (axes.includes("wght")) order.push("wght")
+    for (const a of axes) if (a !== "wght") order.push(a)
+    if (!order.includes("standard")) order.push("standard")
+    return order.map((axis) => `${eff}-${axis}-${style}.woff2`)
+  })()
   const staticFall = `${eff}-400-${style}.woff2`
+  const vfCandidates: string[] = []
+  for (const file of axisFiles) {
+    vfCandidates.push(`${PRIMARY_CDN}/${id}:vf@latest/${file}`)
+    vfCandidates.push(`${FALLBACK_NPM_VAR}/${id}@latest/files/${id}-${file}`)
+  }
+  if (eff !== subset) {
+    for (const axis of [...(axes.includes("wght") ? ["wght"] : []), "standard"]) {
+      const orig = `${subset}-${axis}-${style}.woff2`
+      vfCandidates.push(`${PRIMARY_CDN}/${id}:vf@latest/${orig}`)
+    }
+  }
   return [
-    `${PRIMARY_CDN}/${id}:vf@latest/${file}`,
-    `${FALLBACK_UNPKG_VAR}/${id}@latest/files/${id}-${file}`,
-    `${FALLBACK_NPM_VAR}/${id}@latest/files/${id}-${file}`,
-    // If latin variable not found (e.g. 42dot-sans), try defSubset variable
-    ...(eff !== subset ? [`${PRIMARY_CDN}/${id}:vf@latest/${subset}-standard-${style}.woff2`] : []),
+    ...vfCandidates,
     // Ultimate fallback: static 400 for preview so text still renders in correct family
     `${PRIMARY_CDN}/${id}@latest/${staticFall}`,
-    `${FALLBACK_UNPKG}/${id}@latest/files/${id}-${staticFall}`,
+    `${FALLBACK_NPM}/${id}@latest/files/${id}-${staticFall}`,
   ]
 }
 
