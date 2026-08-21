@@ -18,20 +18,20 @@ interface Props {
 export default function DetailTabs({ font }: Props) {
   return (
     <Tabs defaultValue="specimen">
-      <TabsList>
-        <TabsTrigger value="specimen">
+      <TabsList className="w-full">
+        <TabsTrigger value="specimen" className="flex-1">
           <Type data-icon="inline-start" />
           Specimen
         </TabsTrigger>
-        <TabsTrigger value="glyphs">
+        <TabsTrigger value="glyphs" className="flex-1">
           <Grid2x2 data-icon="inline-start" />
           Glyphs
         </TabsTrigger>
-        <TabsTrigger value="embed">
+        <TabsTrigger value="embed" className="flex-1">
           <CodeXml data-icon="inline-start" />
           Embed code
         </TabsTrigger>
-        <TabsTrigger value="about">
+        <TabsTrigger value="about" className="flex-1">
           <Info data-icon="inline-start" />
           About & License
         </TabsTrigger>
