@@ -44,7 +44,8 @@ export function SpecimenRow({ font, previewText, previewSize }: SpecimenRowProps
         </a>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
-            {font.weights.length * font.styles.length} styles · {font.category}
+            {font.weights.length * font.styles.length}{" "}
+            {font.weights.length * font.styles.length === 1 ? "style" : "styles"} · {font.category}
           </span>
           {font.variable && (
             <Badge variant="secondary" className="h-4 px-1.5 text-xs">

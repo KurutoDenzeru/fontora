@@ -26,6 +26,57 @@ export const fontsById = new Map(fonts.map((f) => [f.id, f]))
 
 export const categories = [...new Set(fonts.map((f) => f.category))].sort()
 
+/** Writing systems ranked by family coverage, latin first. */
+export const subsets: Array<{ id: string; count: number }> = (() => {
+  const counts: Record<string, number> = {}
+  for (const f of fonts) for (const s of f.subsets) counts[s] = (counts[s] ?? 0) + 1
+  return Object.entries(counts)
+    .map(([id, count]) => ({ id, count }))
+    .sort((a, b) => (a.id === "latin" ? -1 : b.id === "latin" ? 1 : b.count - a.count))
+})()
+
+/** Total style variants (weights x styles), the "Number of styles" property. */
+export function styleCount(font: FontMeta): number {
+  return font.weights.length * font.styles.length
+}
+
+export const MAX_STYLE_COUNT = Math.max(...fonts.map(styleCount))
+
+/** Sidebar filter bundle shared by the catalog browser and filter sidebar. */
+export interface SidebarFilters {
+  categories: string[]
+  subset: string
+  appearance: AppearanceTag[]
+  minStyles: number
+}
+
+export const EMPTY_FILTERS: SidebarFilters = {
+  categories: [],
+  subset: "all",
+  appearance: [],
+  minStyles: 1,
+}
+
+/** Appearance tags derived from real axis metadata and family naming, not editorial guesswork. */
+export type AppearanceTag = "variable" | "rounded" | "condensed" | "wide" | "slanted"
+
+export const APPEARANCE_TAGS: AppearanceTag[] = ["variable", "rounded", "condensed", "wide", "slanted"]
+
+export function hasAppearance(font: FontMeta, tag: AppearanceTag): boolean {
+  switch (tag) {
+    case "variable":
+      return font.variable
+    case "rounded":
+      return font.axes?.ROND !== undefined || font.id.includes("rounded")
+    case "condensed":
+      return (font.axes?.wdth !== undefined && font.axes.wdth.min < 90) || font.id.includes("condensed")
+    case "wide":
+      return font.axes?.wdth !== undefined && font.axes.wdth.max > 110
+    case "slanted":
+      return font.axes?.slnt !== undefined
+  }
+}
+
 /** CSS fallback stack per Google category, so previews degrade gracefully. */
 export function fallbackStack(category: string): string {
   switch (category) {
@@ -109,15 +160,19 @@ export function sortFonts(list: FontMeta[], key: SortKey): FontMeta[] {
 
 export interface FontFilter {
   query?: string
-  category?: string
-  variableOnly?: boolean
+  categories?: string[]
+  subset?: string
+  appearance?: AppearanceTag[]
+  minStyles?: number
 }
 
 export function filterFonts(list: FontMeta[], filter: FontFilter): FontMeta[] {
   const query = filter.query?.trim().toLowerCase()
   return list.filter((f) => {
-    if (filter.category && f.category !== filter.category) return false
-    if (filter.variableOnly && !f.variable) return false
+    if (filter.categories?.length && !filter.categories.includes(f.category)) return false
+    if (filter.subset && !f.subsets.includes(filter.subset)) return false
+    if (filter.minStyles && styleCount(f) < filter.minStyles) return false
+    if (filter.appearance?.some((tag) => !hasAppearance(f, tag))) return false
     if (query && !f.family.toLowerCase().includes(query)) return false
     return true
   })

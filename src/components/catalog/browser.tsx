@@ -1,19 +1,29 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
-import { X } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react"
 import {
   fonts,
-  categories,
   sortFonts,
   filterFonts,
+  EMPTY_FILTERS,
   SPECIMEN_DEFAULT,
+  type AppearanceTag,
+  type SidebarFilters,
   type SortKey,
 } from "@/lib/fonts"
 import { SpecimenRow } from "./specimen-row"
+import { SpecimenCard } from "./specimen-card"
+import { FilterSidebar } from "./filter-sidebar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 
 const PAGE_SIZE = 24
@@ -24,46 +34,52 @@ const SORT_LABELS: Record<SortKey, string> = {
   styles: "Most styles",
 }
 
-interface CatalogState {
+interface CatalogState extends SidebarFilters {
   q: string
-  category: string
   sort: SortKey
-  variable: boolean
   preview: string
   size: number
+  view: "grid" | "row"
+}
+
+const DEFAULT_STATE: CatalogState = {
+  q: "",
+  ...EMPTY_FILTERS,
+  sort: "alpha",
+  preview: SPECIMEN_DEFAULT,
+  size: 40,
+  view: "grid",
 }
 
 function readUrlState(): CatalogState {
   const params = new URLSearchParams(window.location.search)
   const size = Number(params.get("size"))
+  const minStyles = Number(params.get("styles"))
+  const view = params.get("view")
   return {
     q: params.get("q") ?? "",
-    category: params.get("category") ?? "all",
+    // Legacy links used ?category=x&variable=true; honor them.
+    categories: (params.get("cat") ?? params.get("category") ?? "").split(",").filter(Boolean),
+    subset: params.get("subset") ?? "all",
+    appearance: (params.get("style")?.split(",").filter(Boolean) ?? []) as AppearanceTag[],
+    minStyles: minStyles >= 1 ? minStyles : 1,
     sort: (params.get("sort") as SortKey) || "alpha",
-    variable: params.get("variable") === "true",
     preview: params.get("preview") ?? SPECIMEN_DEFAULT,
     size: size >= 12 && size <= 96 ? size : 40,
+    view: view === "row" ? "row" : "grid",
   }
 }
 
 export function CatalogBrowser() {
-  const [state, setState] = useState<CatalogState>({
-    q: "",
-    category: "all",
-    sort: "alpha",
-    variable: false,
-    preview: SPECIMEN_DEFAULT,
-    size: 40,
-  })
+  const [state, setState] = useState<CatalogState>(DEFAULT_STATE)
   const [displayedCount, setDisplayedCount] = useState(PAGE_SIZE)
 
-  // Hydrate from URL after mount (server render has no location).
-  // setState here is the standard post-mount hydration sync for shareable URL state.
+  // Hydrate from URL after mount (server render has no location) and subscribe
+  // to the dock's search field. setState here is post-mount hydration sync.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(readUrlState())
 
-    // Search lives in the floating dock; it forwards queries here.
     const onSearch = (event: Event) => {
       const q = (event as CustomEvent<string>).detail
       setState((prev) => ({ ...prev, q: typeof q === "string" ? q : prev.q }))
@@ -82,48 +98,103 @@ export function CatalogBrowser() {
   useEffect(() => {
     const params = new URLSearchParams()
     if (state.q) params.set("q", state.q)
-    if (state.category !== "all") params.set("category", state.category)
+    if (state.categories.length) params.set("cat", state.categories.join(","))
+    if (state.subset !== "all") params.set("subset", state.subset)
+    if (state.appearance.length) params.set("style", state.appearance.join(","))
+    if (state.minStyles > 1) params.set("styles", String(state.minStyles))
     if (state.sort !== "alpha") params.set("sort", state.sort)
-    if (state.variable) params.set("variable", "true")
     if (state.preview !== SPECIMEN_DEFAULT) params.set("preview", state.preview)
     if (state.size !== 40) params.set("size", String(state.size))
+    if (state.view !== "grid") params.set("view", state.view)
     const qs = params.toString()
     window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`)
   }, [state])
 
-  const visible = useMemo(() => {
-    const filtered = filterFonts(fonts, {
-      query: state.q,
-      category: state.category === "all" ? undefined : state.category,
-      variableOnly: state.variable,
-    })
-    return sortFonts(filtered, state.sort)
-  }, [state.q, state.category, state.variable, state.sort])
+  const visible = useMemo(
+    () =>
+      sortFonts(
+        filterFonts(fonts, {
+          query: state.q,
+          categories: state.categories,
+          subset: state.subset === "all" ? undefined : state.subset,
+          appearance: state.appearance,
+          minStyles: state.minStyles,
+        }),
+        state.sort,
+      ),
+    [state.q, state.categories, state.subset, state.appearance, state.minStyles, state.sort],
+  )
 
   const displayed = visible.slice(0, displayedCount)
-  const hasFilters = state.q || state.category !== "all" || state.sort !== "alpha" || state.variable
+  const hasFilters =
+    state.q ||
+    state.categories.length > 0 ||
+    state.subset !== "all" ||
+    state.appearance.length > 0 ||
+    state.minStyles > 1
+
+  const sidebar = (
+    <FilterSidebar
+      value={{
+        categories: state.categories,
+        subset: state.subset,
+        appearance: state.appearance,
+        minStyles: state.minStyles,
+      }}
+      onChange={(filters) => update(filters)}
+    />
+  )
 
   return (
-    <div className="flex flex-col">
-      <div className="sticky top-4 z-30 -mx-4 flex flex-col gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur-sm md:-mx-6 md:px-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <Select value={state.category} onValueChange={(category) => update({ category: category ?? "all" })}>
-            <SelectTrigger className="w-44" aria-label="Filter by category">
-              <SelectValue>
-                {state.category === "all"
-                  ? "All categories"
-                  : state.category.charAt(0).toUpperCase() + state.category.slice(1)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className="flex flex-col gap-6">
+      {/* Preview pane: type anything, size it, watch every specimen follow. */}
+      <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
+        <input
+          type="text"
+          placeholder="Type something to preview"
+          value={state.preview}
+          onChange={(e) => update({ preview: e.target.value })}
+          aria-label="Custom preview text"
+          className="min-w-0 flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground"
+        />
+        <div className="flex w-full items-center gap-3 sm:w-64">
+          <Slider
+            min={12}
+            max={96}
+            step={1}
+            value={[state.size]}
+            onValueChange={(v) => update({ size: (Array.isArray(v) ? v[0] : v) ?? 40 })}
+            aria-label="Preview font size"
+            className="flex-1"
+          />
+          <span className="w-10 text-right text-xs tabular-nums text-muted-foreground">
+            {state.size}px
+          </span>
+        </div>
+      </div>
+
+      {/* Results bar */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{visible.length.toLocaleString()}</span> of{" "}
+          {fonts.length.toLocaleString()} families
+        </p>
+        <div className="flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button variant="outline" size="sm" className="lg:hidden">
+                  <SlidersHorizontal data-icon="inline-start" />
+                  Filters
+                </Button>
+              }
+            />
+            <SheetContent side="left" className="w-80 overflow-y-auto">
+              <SheetTitle>Filters</SheetTitle>
+              <SheetDescription className="sr-only">Filter the font catalog</SheetDescription>
+              <div className="px-4 pb-6">{sidebar}</div>
+            </SheetContent>
+          </Sheet>
 
           <Select value={state.sort} onValueChange={(sort) => update({ sort: (sort as SortKey) ?? "alpha" })}>
             <SelectTrigger className="w-40" aria-label="Sort order">
@@ -136,89 +207,73 @@ export function CatalogBrowser() {
             </SelectContent>
           </Select>
 
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Switch
-              checked={state.variable}
-              onCheckedChange={(variable) => update({ variable })}
-              aria-label="Variable fonts only"
-            />
-            Variable
-          </label>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-48 flex-1">
-            <Input
-              type="text"
-              placeholder="Type to preview"
-              value={state.preview}
-              onChange={(e) => update({ preview: e.target.value })}
-              className="pr-8"
-              aria-label="Custom preview text"
-            />
-            {state.preview !== SPECIMEN_DEFAULT && (
-              <button
-                onClick={() => update({ preview: SPECIMEN_DEFAULT })}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="Reset preview text"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-          <div className="flex w-56 items-center gap-3">
-            <Slider
-              min={12}
-              max={96}
-              step={1}
-              value={[state.size]}
-              onValueChange={(v) => update({ size: Array.isArray(v) ? v[0] : v })}
-              aria-label="Preview font size"
-              className="flex-1"
-            />
-            <span className="w-10 text-right text-xs tabular-nums text-muted-foreground">{state.size}px</span>
-          </div>
+          <ToggleGroup
+            value={[state.view]}
+            onValueChange={(v) => v.length > 0 && update({ view: v[0] as "grid" | "row" })}
+            aria-label="View mode"
+          >
+            <ToggleGroupItem value="grid" variant="outline" size="sm" aria-label="Grid view">
+              <LayoutGrid />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="row" variant="outline" size="sm" aria-label="Row view">
+              <Rows3 />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
-      <div role="list" aria-label="Font specimens">
-        {displayed.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-24 text-center">
-            <p className="text-lg font-medium">No fonts match your filters</p>
-            <p className="text-sm text-muted-foreground">Try a different search or category.</p>
-            {hasFilters && (
-              <Button
-                variant="outline"
-                className="mt-2"
-                onClick={() => {
-                  update({ q: "", category: "all", sort: "alpha", variable: false })
-                  window.dispatchEvent(new CustomEvent("fontora:search", { detail: "" }))
-                }}
-              >
-                Reset filters
-              </Button>
-            )}
-          </div>
-        ) : (
-          <>
-            {displayed.map((font, i) => (
-              <Fragment key={font.id}>
-                {i > 0 && <Separator />}
-                <SpecimenRow font={font} previewText={state.preview} previewSize={state.size} />
-              </Fragment>
-            ))}
-            <div className="flex flex-col items-center gap-3 border-t py-8">
-              <p className="text-sm text-muted-foreground">
-                Showing {displayed.length.toLocaleString()} of {visible.length.toLocaleString()} families
-              </p>
-              {displayedCount < visible.length && (
-                <Button variant="outline" onClick={() => setDisplayedCount((c) => c + PAGE_SIZE)}>
-                  Load more
+      <div className="flex items-start gap-10">
+        <aside className="sticky top-24 hidden w-56 shrink-0 self-start lg:block">{sidebar}</aside>
+
+        <div className="min-w-0 flex-1" role="list" aria-label="Font specimens">
+          {displayed.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-24 text-center">
+              <p className="text-lg font-medium">No fonts match your filters</p>
+              <p className="text-sm text-muted-foreground">Try a different search or fewer filters.</p>
+              {hasFilters && (
+                <Button
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => {
+                    update({ q: "", ...EMPTY_FILTERS })
+                    window.dispatchEvent(new CustomEvent("fontora:search", { detail: "" }))
+                  }}
+                >
+                  Reset filters
                 </Button>
               )}
             </div>
-          </>
-        )}
+          ) : state.view === "grid" ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {displayed.map((font) => (
+                <SpecimenCard key={font.id} font={font} previewText={state.preview} previewSize={state.size} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {displayed.map((font, i) => (
+                <div key={font.id}>
+                  {i > 0 && <Separator />}
+                  <SpecimenRow font={font} previewText={state.preview} previewSize={state.size} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {displayed.length > 0 && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              {displayedCount < visible.length ? (
+                <Button variant="outline" onClick={() => setDisplayedCount((c) => c + PAGE_SIZE)}>
+                  Load more
+                </Button>
+              ) : (
+                visible.length > PAGE_SIZE && (
+                  <p className="text-sm text-muted-foreground">That is every matching family.</p>
+                )
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
