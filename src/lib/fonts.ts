@@ -128,10 +128,13 @@ export function familyCssUrls(font: FontMeta, subset = "latin"): string[] {
 }
 
 /** Google Fonts CSS2 API embed URL for user-facing copy-paste snippets. */
-export function googleFontsCssUrl(selected: Array<{ family: string; weights?: number[] }>): string {
+export function googleFontsCssUrl(
+  selected: Array<{ family: string; weights?: number[]; range?: [number, number] }>,
+): string {
   const params = selected
-    .map(({ family, weights }) => {
+    .map(({ family, weights, range }) => {
       const name = family.replace(/ /g, "+")
+      if (range) return `family=${name}:wght@${range[0]}..${range[1]}`
       if (!weights?.length) return `family=${name}`
       const sorted = [...weights].sort((a, b) => a - b)
       return `family=${name}:wght@${sorted.join(";")}`

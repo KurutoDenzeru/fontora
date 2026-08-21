@@ -1,99 +1,138 @@
-import { useState } from "react"
-import { Check, Copy } from "lucide-react"
+import { useEffect, useState } from "react"
+import { AtSign, Braces, Check, Copy, Link2, Package } from "lucide-react"
 import { toast } from "sonner"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { googleFontsCssUrl, fallbackStack, type FontMeta } from "@/lib/fonts"
+import { cn } from "@/lib/utils"
 
 interface Props {
   font: FontMeta
 }
 
-type TabId = "link" | "import" | "css" | "npm"
-
+/**
+ * Embed snippets as a scroll-spy table of contents: the sidebar tracks the
+ * visible section and scrolls to anchors instead of switching tabs.
+ */
 export default function EmbedPanel({ font }: Props) {
-  const [weights, setWeights] = useState<string[]>(["400", "700"])
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<string | null>(null)
+  const [active, setActive] = useState("embed-link")
 
-  const numericWeights = weights
-    .map(Number)
-    .filter((w) => font.weights.includes(w))
-    .sort((a, b) => a - b)
-
+  // Variable fonts embed as a weight range; static fonts as the text pair.
+  const wghtAxis = font.variable ? font.axes?.wght : undefined
+  const staticWeights = [400, 700].filter((w) => font.weights.includes(w))
   const cssUrl = googleFontsCssUrl([
-    { family: font.family, weights: numericWeights.length ? numericWeights : undefined },
+    wghtAxis
+      ? { family: font.family, range: [wghtAxis.min, wghtAxis.max] }
+      : { family: font.family, weights: staticWeights.length ? staticWeights : undefined },
   ])
 
-  const snippets: Record<TabId, string> = {
-    link: [
-      `<link rel="preconnect" href="https://fonts.googleapis.com" />`,
-      `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />`,
-      `<link href="${cssUrl}" rel="stylesheet" />`,
-    ].join("\n"),
-    import: `@import url("${cssUrl}");`,
-    css: `font-family: '${font.family}', ${fallbackStack(font.category)};`,
-    npm: `bun add ${font.variable ? `@fontsource-variable/${font.id}` : `@fontsource/${font.id}`}`,
-  }
+  const sections = [
+    {
+      id: "embed-link",
+      label: "<link>",
+      icon: Link2,
+      snippet: [
+        `<link rel="preconnect" href="https://fonts.googleapis.com" />`,
+        `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />`,
+        `<link href="${cssUrl}" rel="stylesheet" />`,
+      ].join("\n"),
+    },
+    {
+      id: "embed-import",
+      label: "@import",
+      icon: AtSign,
+      snippet: `@import url("${cssUrl}");`,
+    },
+    {
+      id: "embed-css",
+      label: "CSS",
+      icon: Braces,
+      snippet: `font-family: '${font.family}', ${fallbackStack(font.category)};`,
+    },
+    {
+      id: "embed-npm",
+      label: "npm",
+      icon: Package,
+      snippet: `bun add ${font.variable ? `@fontsource-variable/${font.id}` : `@fontsource/${font.id}`}`,
+    },
+  ]
 
-  const copy = async (text: string) => {
+  // Scroll-spy: highlight the TOC entry whose section is near the viewport top.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id)
+        }
+      },
+      { rootMargin: "-25% 0px -65% 0px" },
+    )
+    for (const section of sections) {
+      const el = document.getElementById(section.id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+    // Sections are stable per font page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [font.id])
+
+  const copy = async (section: (typeof sections)[number]) => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
+      await navigator.clipboard.writeText(section.snippet)
+      setCopied(section.id)
       toast.success("Copied to clipboard")
-      setTimeout(() => setCopied(false), 2000)
+      setTimeout(() => setCopied(null), 2000)
     } catch {
       toast.error("Copy failed")
     }
   }
 
-  const tabs: Array<{ id: TabId; label: string }> = [
-    { id: "link", label: "<link>" },
-    { id: "import", label: "@import" },
-    { id: "css", label: "CSS" },
-    { id: "npm", label: "npm" },
-  ]
+  const scrollTo = (id: string) => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" })
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm text-muted-foreground">Weights</span>
-        <ToggleGroup value={weights} onValueChange={(v) => v.length > 0 && setWeights(v)}>
-          {font.weights.map((weight) => (
-            <ToggleGroupItem key={weight} value={String(weight)} variant="outline" size="sm">
-              {weight}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+    <div className="grid gap-10 md:grid-cols-[12rem_1fr]">
+      <aside className="flex flex-col gap-1 self-start md:sticky md:top-28" aria-label="Embed sections">
+        {sections.map((section) => (
+          <button
+            key={section.id}
+            onClick={() => scrollTo(section.id)}
+            aria-current={active === section.id}
+            className={cn(
+              "flex items-center gap-2 border-l-2 py-1.5 pr-2 pl-3 text-left text-sm transition-colors",
+              active === section.id
+                ? "border-primary font-medium text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <section.icon className="size-3.5" />
+            {section.label}
+          </button>
+        ))}
+      </aside>
 
-      <Tabs defaultValue="link">
-        <TabsList>
-          {tabs.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className="pt-4">
-            <div className="group relative">
-              <pre className="overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm">
-                <code>{snippets[tab.id]}</code>
-              </pre>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => copy(snippets[tab.id])}
-                aria-label={`Copy ${tab.label} snippet`}
-              >
-                {copied ? <Check /> : <Copy />}
+      <div className="flex min-w-0 flex-col gap-10">
+        {sections.map((section) => (
+          <section key={section.id} id={section.id} className="scroll-mt-28">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <h3 className="text-sm font-medium">{section.label}</h3>
+              <Button variant="ghost" size="sm" onClick={() => copy(section)}>
+                {copied === section.id ? (
+                  <Check data-icon="inline-start" />
+                ) : (
+                  <Copy data-icon="inline-start" />
+                )}
+                {copied === section.id ? "Copied" : "Copy"}
               </Button>
             </div>
-          </TabsContent>
+            <pre className="overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm whitespace-pre">
+              <code>{section.snippet}</code>
+            </pre>
+          </section>
         ))}
-      </Tabs>
+      </div>
     </div>
   )
 }

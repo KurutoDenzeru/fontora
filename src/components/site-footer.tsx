@@ -8,8 +8,8 @@ import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa6"
  */
 const SOCIALS = [
   { label: "GitHub", href: "https://github.com/KurutoDenzeru/fontora", Icon: FaGithub },
-  { label: "Instagram", href: "https://instagram.com/", Icon: FaInstagram },
-  { label: "LinkedIn", href: "https://linkedin.com/", Icon: FaLinkedin },
+  { label: "Instagram", href: "https://www.instagram.com/krtclcdy/", Icon: FaInstagram },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/kurtcalacday/", Icon: FaLinkedin },
 ]
 
 const LINK_COLUMNS: Array<{ title: string; links: Array<{ label: string; href: string }> }> = [
