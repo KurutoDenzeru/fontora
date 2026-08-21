@@ -5,12 +5,14 @@ interface SelectButtonProps {
   fontId: string
   family: string
   variant?: "outline" | "ghost"
+  className?: string
 }
 
-export function SelectButton({ fontId, family, variant = "outline" }: SelectButtonProps) {
+export function SelectButton({ fontId, family, variant = "outline", className }: SelectButtonProps) {
   return (
     <Button
       variant={variant}
+      className={className}
       onClick={() => window.dispatchEvent(new CustomEvent("fontora:toggle-select", { detail: fontId }))}
       aria-label={`Add ${family} to selection`}
     >

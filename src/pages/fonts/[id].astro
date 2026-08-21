@@ -6,7 +6,6 @@ import PairingRow from "@/components/font-detail/pairing-row"
 import { SelectButton } from "@/components/select-button"
 import { fonts, fontsById } from "@/lib/fonts"
 import { pairings } from "@/data/curation"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import type { FontMeta } from "@/lib/fonts"
 
@@ -32,17 +31,42 @@ const pairedFonts = (pairings[font.id] ?? [])
 
 <MainLayout title={`${font.family} · Fontora`} description={description}>
   <article class="py-10 md:py-14">
-    <header class="mb-10">
+    <a
+      href="/"
+      class="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <span aria-hidden="true">&larr;</span> Catalog
+    </a>
+
+    <header class="mb-12 grid items-end gap-8 lg:grid-cols-[1fr_16rem]">
       <FamilyTitle font={font} client:load />
-      <div class="mt-6 flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">{font.category}</Badge>
-        <Badge variant="secondary">{font.license}</Badge>
-        {font.variable && <Badge variant="secondary">Variable</Badge>}
-        <Badge variant="secondary">{font.weights.length} weights</Badge>
-        <Badge variant="secondary">{font.subsets.length} subsets</Badge>
-        <div class="ml-auto">
-          <SelectButton fontId={font.id} family={font.family} client:load />
-        </div>
+
+      <div class="flex flex-col gap-5">
+        <dl class="flex flex-col divide-y text-sm">
+          <div class="flex items-center justify-between gap-4 py-2">
+            <dt class="text-muted-foreground">Category</dt>
+            <dd class="font-medium capitalize">{font.category}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4 py-2">
+            <dt class="text-muted-foreground">License</dt>
+            <dd class="font-medium">{font.license}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4 py-2">
+            <dt class="text-muted-foreground">Weights</dt>
+            <dd class="font-medium tabular-nums">{font.weights.length}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4 py-2">
+            <dt class="text-muted-foreground">Subsets</dt>
+            <dd class="font-medium tabular-nums">{font.subsets.length}</dd>
+          </div>
+          {font.variable && (
+            <div class="flex items-center justify-between gap-4 py-2">
+              <dt class="text-muted-foreground">Variable axes</dt>
+              <dd class="font-medium tabular-nums">{axisCount}</dd>
+            </div>
+          )}
+        </dl>
+        <SelectButton fontId={font.id} family={font.family} className="w-full" client:load />
       </div>
     </header>
 

@@ -46,7 +46,7 @@ const DEFAULT_STATE: CatalogState = {
   q: "",
   ...EMPTY_FILTERS,
   sort: "alpha",
-  preview: SPECIMEN_DEFAULT,
+  preview: "",
   size: 40,
   view: "grid",
 }
@@ -64,7 +64,7 @@ function readUrlState(): CatalogState {
     appearance: (params.get("style")?.split(",").filter(Boolean) ?? []) as AppearanceTag[],
     minStyles: minStyles >= 1 ? minStyles : 1,
     sort: (params.get("sort") as SortKey) || "alpha",
-    preview: params.get("preview") ?? SPECIMEN_DEFAULT,
+    preview: params.get("preview") ?? "",
     size: size >= 12 && size <= 96 ? size : 40,
     view: view === "row" ? "row" : "grid",
   }
@@ -103,7 +103,7 @@ export function CatalogBrowser() {
     if (state.appearance.length) params.set("style", state.appearance.join(","))
     if (state.minStyles > 1) params.set("styles", String(state.minStyles))
     if (state.sort !== "alpha") params.set("sort", state.sort)
-    if (state.preview !== SPECIMEN_DEFAULT) params.set("preview", state.preview)
+    if (state.preview) params.set("preview", state.preview)
     if (state.size !== 40) params.set("size", String(state.size))
     if (state.view !== "grid") params.set("view", state.view)
     const qs = params.toString()
@@ -151,7 +151,7 @@ export function CatalogBrowser() {
       <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
         <input
           type="text"
-          placeholder="Type something to preview"
+          placeholder={SPECIMEN_DEFAULT}
           value={state.preview}
           onChange={(e) => update({ preview: e.target.value })}
           aria-label="Custom preview text"
