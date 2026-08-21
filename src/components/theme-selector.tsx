@@ -37,18 +37,15 @@ export function ThemeSelector() {
 
   return (
     <Tabs value={theme} onValueChange={onValueChange} className="w-fit">
-      <TabsList className="h-8">
-        <TabsTrigger value="system" className="gap-1.5 px-2.5 text-xs">
-          <Monitor data-icon="inline-start" />
-          System
+      <TabsList className="h-7 p-1">
+        <TabsTrigger value="system" aria-label="System theme" className="px-2">
+          <Monitor className="size-3.5" />
         </TabsTrigger>
-        <TabsTrigger value="light" className="gap-1.5 px-2.5 text-xs">
-          <Sun data-icon="inline-start" />
-          Light
+        <TabsTrigger value="light" aria-label="Light theme" className="px-2">
+          <Sun className="size-3.5" />
         </TabsTrigger>
-        <TabsTrigger value="dark" className="gap-1.5 px-2.5 text-xs">
-          <Moon data-icon="inline-start" />
-          Dark
+        <TabsTrigger value="dark" aria-label="Dark theme" className="px-2">
+          <Moon className="size-3.5" />
         </TabsTrigger>
       </TabsList>
     </Tabs>

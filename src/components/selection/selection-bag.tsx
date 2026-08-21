@@ -99,7 +99,7 @@ function EmbedTabs({ selectedFonts }: { selectedFonts: FontMeta[] }) {
 
   const tabs: Array<{ id: string; label: string; icon: typeof Link2 }> = [
     { id: "link", label: "<link>", icon: Link2 },
-    { id: "import", label: "@import", icon: AtSign },
+    { id: "import", label: "import", icon: AtSign },
     { id: "css", label: "CSS", icon: Braces },
   ]
 
@@ -172,8 +172,8 @@ export function SelectionBag() {
           </Button>
         }
       />
-      <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-        <DialogHeader className="border-b px-6 pt-6 pb-4">
+      <DialogContent className="flex max-h-[min(85vh,720px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
+        <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Layers className="size-4 text-muted-foreground" />
             Your selection
@@ -184,7 +184,7 @@ export function SelectionBag() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
           <div className="flex flex-col gap-2">
             {selectedFonts.map((font) => (
               <div
@@ -218,11 +218,13 @@ export function SelectionBag() {
           <EmbedTabs selectedFonts={selectedFonts} />
         </div>
 
-        <DialogFooter className="border-t bg-muted/20 px-6 py-4 sm:justify-between">
-          <Button variant="ghost" size="sm" onClick={clearAll}>
+        <DialogFooter className="shrink-0 flex-row items-center justify-between gap-2 border-t bg-muted/20 px-6 py-4 max-sm:flex-col-reverse max-sm:items-stretch">
+          <Button variant="ghost" size="sm" onClick={clearAll} className="max-sm:w-full">
             Clear all
           </Button>
-          <Button onClick={() => setOpen(false)}>Done</Button>
+          <Button onClick={() => setOpen(false)} className="max-sm:w-full">
+            Done
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

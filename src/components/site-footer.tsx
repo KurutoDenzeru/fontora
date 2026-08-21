@@ -41,19 +41,23 @@ export function SiteFooter() {
               A curated catalog of open-source type. Live specimens, variable playgrounds, and embed
               snippets for every family.
             </p>
-            <div className="flex items-center gap-1">
-              {SOCIALS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  <Icon className="size-4" />
-                </a>
-              ))}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {SOCIALS.map(({ label, href, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                ))}
+              </div>
+              <div className="h-4 w-px bg-border" aria-hidden="true" />
+              <ThemeSelector />
             </div>
           </div>
 
@@ -73,14 +77,9 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-4 border-t py-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <span className="text-sm text-muted-foreground">© 2026 Fontora</span>
-            <ThemeSelector />
-          </div>
-          <span className="text-sm text-muted-foreground">
-            Fonts served by the Fontsource CDN. Every family ships with its license.
-          </span>
+        <div className="flex flex-col gap-2 border-t py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span>© 2026 Fontora</span>
+          <span>Fonts served by the Fontsource CDN. Every family ships with its license.</span>
         </div>
 
         <div aria-hidden="true" className="select-none overflow-hidden pb-2">
