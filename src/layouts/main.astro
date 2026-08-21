@@ -3,6 +3,7 @@ import "@/styles/global.css"
 import { Toaster } from "@/components/ui/sonner"
 import { SelectionBag } from "@/components/selection/selection-bag"
 import { DockNav } from "@/components/dock-nav"
+import { SiteFooter } from "@/components/site-footer"
 
 interface Props {
   title?: string
@@ -40,12 +41,7 @@ const {
     <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 pt-20 md:px-6">
       <slot />
     </main>
-    <footer class="border-t py-8">
-      <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 text-sm text-muted-foreground md:px-6">
-        <span>Fontora</span>
-        <span>Fonts served by the Fontsource CDN. Licenses included per family.</span>
-      </div>
-    </footer>
+    <SiteFooter />
     <Toaster client:load />
     <SelectionBag client:load />
   </body>
