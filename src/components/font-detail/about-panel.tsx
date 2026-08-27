@@ -38,7 +38,7 @@ export default function AboutPanel({ font }: Props) {
   const fontTags = tags[font.id] ?? []
 
   return (
-    <div className="grid gap-10 md:grid-cols-2">
+    <div className="grid gap-6 md:gap-10 md:grid-cols-2">
       <section aria-label="License">
         <h3 className="mb-3 flex items-center gap-2 text-base font-medium">
           License

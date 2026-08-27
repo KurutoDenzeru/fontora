@@ -52,7 +52,7 @@ export default function FamilyTitle({ font }: Props) {
       initial={reduce ? false : { opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="pb-1 text-[clamp(3.5rem,9vw,7.5rem)] leading-none font-medium tracking-tight break-words"
+      className="pb-1 text-[clamp(2.25rem,9vw,7.5rem)] leading-[1.05] font-medium tracking-tight break-words sm:pb-2"
       style={
         loaded
           ? { fontFamily: familyCss(font), ...(wghtAxis ? {} : { fontWeight: 400 }) }

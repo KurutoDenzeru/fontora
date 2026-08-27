@@ -36,14 +36,14 @@ export default function GlyphGrid({ font }: Props) {
   return (
     <div
       ref={containerRef}
-      className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2"
+      className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-1.5 sm:gap-2"
       role="list"
       aria-label={`${font.family} glyph set`}
     >
       {GLYPHS.map((glyph) => (
         <div
           key={glyph}
-          className="flex size-12 items-center justify-center rounded-md border text-2xl transition-colors hover:bg-accent"
+          className="flex size-11 sm:size-12 items-center justify-center rounded-md border text-2xl transition-colors hover:bg-accent"
           role="listitem"
           style={loaded ? { fontFamily: familyCss(font) } : undefined}
         >
