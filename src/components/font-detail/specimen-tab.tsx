@@ -73,7 +73,7 @@ export default function SpecimenTab({ font }: Props) {
   const displayText = preview.trim() ? preview : SPECIMEN_DEFAULT
 
   return (
-    <div className="grid gap-10 md:grid-cols-[15rem_1fr]">
+    <div className="grid gap-6 md:gap-10 md:grid-cols-[15rem_1fr]">
       <aside className="flex flex-col gap-6 self-start md:sticky md:top-28">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">{font.variable ? "Variable axes" : "Controls"}</h3>
@@ -166,8 +166,8 @@ export default function SpecimenTab({ font }: Props) {
         )}
       </aside>
 
-      <div className="flex min-w-0 flex-col gap-10">
-        <div className="rounded-md border p-6">
+      <div className="flex min-w-0 flex-col gap-6 md:gap-10">
+        <div className="rounded-md border p-4 sm:p-6">
           <p className="leading-relaxed break-words whitespace-pre-wrap" style={previewStyle}>
             {displayText}
           </p>

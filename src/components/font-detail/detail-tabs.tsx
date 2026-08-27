@@ -30,20 +30,20 @@ export default function DetailTabs({ font }: Props) {
 
   return (
     <Tabs defaultValue="specimen">
-      <TabsList className="w-full">
-        <TabsTrigger value="specimen" className="flex-1">
+      <TabsList className="-mx-1 w-full justify-start overflow-x-auto rounded-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <TabsTrigger value="specimen">
           <Type data-icon="inline-start" />
           Specimen
         </TabsTrigger>
-        <TabsTrigger value="glyphs" className="flex-1">
+        <TabsTrigger value="glyphs">
           <Languages data-icon="inline-start" />
           Glyphs & languages
         </TabsTrigger>
-        <TabsTrigger value="embed" className="flex-1">
+        <TabsTrigger value="embed">
           <CodeXml data-icon="inline-start" />
           Embed code
         </TabsTrigger>
-        <TabsTrigger value="about" className="flex-1">
+        <TabsTrigger value="about">
           <Info data-icon="inline-start" />
           About & License
         </TabsTrigger>

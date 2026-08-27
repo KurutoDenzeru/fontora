@@ -87,18 +87,18 @@ export default function EmbedPanel({ font }: Props) {
   }
 
   return (
-    <div className="grid gap-10 md:grid-cols-[12rem_1fr]">
-      <aside className="flex flex-col gap-1 self-start md:sticky md:top-28" aria-label="Embed sections">
+    <div className="grid gap-6 md:gap-10 md:grid-cols-[12rem_1fr]">
+      <aside className="flex gap-1 self-start overflow-x-auto md:sticky md:top-28 md:flex-col md:gap-1 md:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Embed sections">
         {sections.map((section) => (
           <button
             key={section.id}
             onClick={() => scrollTo(section.id)}
             aria-current={active === section.id}
             className={cn(
-              "flex items-center gap-2 border-l-2 py-1.5 pr-2 pl-3 text-left text-sm transition-colors",
+              "flex shrink-0 items-center gap-2 border-b-2 border-transparent py-1.5 pr-3 pl-3 text-left text-sm whitespace-nowrap transition-colors md:border-b-0 md:border-l-2 md:pr-2 md:pl-3",
               active === section.id
                 ? "border-primary font-medium text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <section.icon className="size-3.5" />
@@ -107,12 +107,12 @@ export default function EmbedPanel({ font }: Props) {
         ))}
       </aside>
 
-      <div className="flex min-w-0 flex-col gap-10">
+      <div className="flex min-w-0 flex-col gap-6 md:gap-10">
         {sections.map((section) => (
           <section key={section.id} id={section.id} className="scroll-mt-28">
             <h3 className="mb-3 text-sm font-medium">{section.label}</h3>
             <div className="group relative">
-              <pre className="overflow-x-auto rounded-md bg-muted p-4 pr-12 font-mono text-sm whitespace-pre">
+              <pre className="overflow-x-auto rounded-md bg-muted p-3 pr-12 font-mono text-sm whitespace-pre sm:p-4">
                 <code>{section.snippet}</code>
               </pre>
               <Button
