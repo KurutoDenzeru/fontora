@@ -2,6 +2,7 @@
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import react from "@astrojs/react"
+import sitemap from "@astrojs/sitemap"
 
 // Vite now uses Oxc for transforms (see https://oxc.rs) and Rolldown for dep optimization.
 // `esbuild` → `oxc` and `optimizeDeps.esbuildOptions` → `optimizeDeps.rolldownOptions` are
@@ -13,8 +14,9 @@ import react from "@astrojs/react"
 // https://vite.dev/guide/migration#javascript-transforms-by-oxc
 // https://vite.dev/guide/migration#dependency-optimizer-now-uses-rolldown
 export default defineConfig({
+  site: "https://fontora.vercel.app",
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [react()],
+  integrations: [react(), sitemap()],
 })

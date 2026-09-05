@@ -4,7 +4,7 @@ import FamilyTitle from "@/components/font-detail/family-title"
 import DetailTabs from "@/components/font-detail/detail-tabs"
 import PairingRow from "@/components/font-detail/pairing-row"
 import { SelectButton } from "@/components/select-button"
-import { fonts, fontsById } from "@/lib/fonts"
+import { fonts, fontsById, styleCount } from "@/lib/fonts"
 import { pairings } from "@/data/curation"
 import { Separator } from "@/components/ui/separator"
 import type { FontMeta } from "@/lib/fonts"
@@ -22,13 +22,38 @@ export function getStaticPaths() {
 
 const { font } = Astro.props
 
-const description = `${font.family}: ${font.category} font with ${font.weights.length} weights.${font.variable ? ` Variable font with ${Object.keys(font.axes ?? {}).length} axes.` : ""}`
+const styleTotal = styleCount(font)
+const axisCount = font.axes ? Object.keys(font.axes).length : 0
+const summary = [
+  `${font.family} is a free, open-source ${font.category} font with ${styleTotal} ${styleTotal === 1 ? "style" : "styles"}`,
+  `licensed under ${font.license}`,
+  ...(font.variable ? [`${axisCount} variable ${axisCount === 1 ? "axis" : "axes"}`] : []),
+].join(", ")
+const description = `${summary}. Preview live specimens on Fontora.`
 const pairedFonts = (pairings[font.id] ?? [])
   .map((id) => fontsById.get(id))
   .filter((f): f is FontMeta => f !== undefined)
+
+const pageURL = new URL(Astro.url.pathname, Astro.site).href
+const pageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: `${font.family} · Fontora`,
+  description,
+  url: pageURL,
+  isPartOf: { "@type": "WebSite", name: "Fontora", url: Astro.site?.href },
+  inLanguage: "en",
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: new URL("/", Astro.site).href },
+      { "@type": "ListItem", position: 2, name: font.family, item: pageURL },
+    ],
+  },
+}
 ---
 
-<MainLayout title={`${font.family} · Fontora`} description={description}>
+<MainLayout title={`${font.family} · Fontora`} description={description} schema={pageSchema}>
   <article class="py-10 md:py-14">
     <a
       href="/"

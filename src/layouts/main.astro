@@ -8,26 +8,76 @@ import { SiteFooter } from "@/components/site-footer"
 interface Props {
   title?: string
   description?: string
+  /** Page-specific JSON-LD schema, rendered alongside the site-wide WebSite schema. */
+  schema?: Record<string, unknown>
 }
 
 const {
   title = "Fontora · A curated font catalog",
   description = "Browse, test, and pair 1,900+ open-source fonts. Live specimens, variable axis playgrounds, and embed snippets.",
+  schema,
 } = Astro.props
+
+const siteName = "Fontora"
+const author = "Kurt Calacday"
+const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const ogImage = new URL("/OpenGraph.webp", Astro.site)
+const ogImageAlt = "Fontora — a curated catalog of 1,900+ open-source fonts"
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  url: Astro.site?.href,
+  inLanguage: "en",
+  author: { "@type": "Person", name: author, url: "https://github.com/KurutoDenzeru" },
+  publisher: { "@type": "Person", name: author },
+}
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+
     <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="fonts, typefaces, open-source fonts, variable fonts, font pairing, typography, web fonts, font specimens"
+    />
+    <meta name="author" content={author} />
+    <meta name="creator" content={author} />
+    <meta name="publisher" content={author} />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" hreflang="en" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="3456" />
+    <meta property="og:image:height" content="2168" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/webp" href="/brand.webp" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preload" href="/brand.webp" as="image" type="image/webp" />
-    <title>{title}</title>
+
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} is:inline />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />}
     <script is:inline>
       {
         const stored = localStorage.getItem("fontora:theme")
