@@ -13,6 +13,7 @@ import react from "@astrojs/react"
 // https://vite.dev/guide/migration#javascript-transforms-by-oxc
 // https://vite.dev/guide/migration#dependency-optimizer-now-uses-rolldown
 export default defineConfig({
+  site: "https://fontora.vercel.app",
   vite: {
     plugins: [tailwindcss()],
   },

@@ -26,9 +26,27 @@ const description = `${font.family}: ${font.category} font with ${font.weights.l
 const pairedFonts = (pairings[font.id] ?? [])
   .map((id) => fontsById.get(id))
   .filter((f): f is FontMeta => f !== undefined)
+
+const pageURL = new URL(Astro.url.pathname, Astro.site).href
+const pageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: `${font.family} · Fontora`,
+  description,
+  url: pageURL,
+  isPartOf: { "@type": "WebSite", name: "Fontora", url: Astro.site?.href },
+  inLanguage: "en",
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: new URL("/", Astro.site).href },
+      { "@type": "ListItem", position: 2, name: font.family, item: pageURL },
+    ],
+  },
+}
 ---
 
-<MainLayout title={`${font.family} · Fontora`} description={description}>
+<MainLayout title={`${font.family} · Fontora`} description={description} schema={pageSchema}>
   <article class="py-10 md:py-14">
     <a
       href="/"
