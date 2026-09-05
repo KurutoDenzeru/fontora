@@ -71,7 +71,9 @@ const websiteSchema = {
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/webp" href="/brand.webp" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preload" href="/brand.webp" as="image" type="image/webp" />
 
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} is:inline />
