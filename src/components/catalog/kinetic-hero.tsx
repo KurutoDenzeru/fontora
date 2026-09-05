@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { ArrowRight } from "lucide-react"
 import { ensureFont, familyCss } from "@/lib/font-loader"
@@ -14,19 +14,31 @@ const INTERVAL_MS = 2800
  */
 export function KineticHero() {
   const reduce = useReducedMotion()
-  const showcase = SHOWCASE_IDS.map((id) => fontsById.get(id)).filter((f): f is FontMeta => f !== undefined)
+  const showcase = useMemo(
+    () => SHOWCASE_IDS.map((id) => fontsById.get(id)).filter((f): f is FontMeta => f !== undefined),
+    [],
+  )
   const [index, setIndex] = useState(0)
   const [ready, setReady] = useState<ReadonlySet<string>>(new Set())
 
-  // Warm the cache for every showcase face up front so transitions never flash fallback.
+  const warm = (font: FontMeta) => {
+    ensureFont(font)
+      .then(() => setReady((prev) => new Set(prev).add(font.id)))
+      .catch(() => {})
+  }
+
+  // Warm only the first face at load — eager-loading every showcase woff2
+  // competes with LCP bandwidth. The next face warms ahead of each transition.
   useEffect(() => {
-    for (const font of showcase) {
-      ensureFont(font)
-        .then(() => setReady((prev) => new Set(prev).add(font.id)))
-        .catch(() => {})
-    }
+    if (showcase[0]) warm(showcase[0])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const next = showcase[(index + 1) % showcase.length]
+    if (next && !ready.has(next.id)) warm(next)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index])
 
   useEffect(() => {
     if (reduce) return
