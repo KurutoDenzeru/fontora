@@ -36,7 +36,7 @@ export function SiteFooter() {
         <div className="grid gap-10 py-12 md:grid-cols-[1fr_auto_auto] md:gap-16">
           <div className="flex max-w-sm flex-col gap-4">
             <a href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
-              <img src="/brand.webp" alt="Fontora" width={28} height={28} className="size-7 rounded-md object-contain" loading="lazy" decoding="async" />
+              <img src="/brand-128.png" alt="Fontora" width={28} height={28} className="size-7 rounded-md object-contain" loading="lazy" decoding="async" />
               Fontora
             </a>
             <p className="text-sm leading-relaxed text-muted-foreground">

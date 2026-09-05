@@ -25,7 +25,7 @@ export function DockNav() {
         className="group flex h-12 items-center gap-2.5 rounded-full border bg-background/70 pl-2 pr-4 shadow-md shadow-black/5 backdrop-blur-xl"
       >
         <img
-          src="/brand.webp"
+          src="/brand-128.png"
           alt="Fontora"
           width={24}
           height={24}

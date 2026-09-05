@@ -15,7 +15,7 @@ import { TypeMarquee } from "@/components/catalog/type-marquee"
       <HeroSearch client:load />
     </header>
 
-    <CatalogBrowser client:load />
+    <CatalogBrowser client:idle />
 
     <div class="mt-16 md:mt-20">
       <TypeMarquee fontIds={SHOWCASE_IDS} client:visible />
