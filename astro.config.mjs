@@ -2,6 +2,7 @@
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "astro/config"
 import react from "@astrojs/react"
+import sitemap from "@astrojs/sitemap"
 
 // Vite now uses Oxc for transforms (see https://oxc.rs) and Rolldown for dep optimization.
 // `esbuild` → `oxc` and `optimizeDeps.esbuildOptions` → `optimizeDeps.rolldownOptions` are
@@ -17,5 +18,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [react()],
+  integrations: [react(), sitemap()],
 })
