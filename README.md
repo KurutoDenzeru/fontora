@@ -27,7 +27,6 @@
 - [shadcn/ui](https://ui.shadcn.com/) + [Base UI](https://base-ui.com/): Re-usable accessible components built on Radix patterns.
 - [Fontsource](https://fontsource.org/): Font files, metadata, and the `@fontsource-variable` packages powering previews and embeds.
 - [Vite](https://vite.dev/): Dev server and bundler under the hood.
-- [Bun](https://bun.sh/): Package manager, runtime, and script runner for catalog syncing.
 
 ## ⚡ Getting Started
 
